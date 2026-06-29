@@ -1,0 +1,37 @@
+# 环境与密钥（禁止提交）
+.env
+.env.*
+!.env.production.example
+user-profile.md
+
+# 依赖与构建
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pdm-python
+.pixi/
+
+# 本地产出与临时文件
+tmp/
+*.log
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+
+# 可选本地 ffmpeg 二进制（体积大，不纳入版本库）
+bin/
+
+# 小红书运行时数据
+xiaohongshu-skills/config/
+xiaohongshu-skills/tmp/
+xiaohongshu-skills/.venv/
+
+# 测试草稿（发布用临时文本）
+title.txt
+content.txt
+comment.txt
