@@ -17,6 +17,7 @@
 - YouTube: [启用/关闭]
 - LinkedIn: [启用/关闭]
 - TikTok: [启用/关闭]
+- X (Twitter): [启用/关闭]
 
 ## YouTube 配置（启用时填写）
 - 频道名称:
@@ -33,6 +34,13 @@
 ## TikTok 配置（启用时填写）
 - sau 账号名: default
 - 默认标签: #fyp
+
+## X (Twitter) 配置（启用时填写）
+- 账号 handle: (@username)
+- 发帖模式: 常规帖 / X Article（长文需 Premium）
+- 字符上限: 280（非 Premium）/ 10000（Premium）
+- 默认标签: #YourTag
+- Chrome profile: `%APPDATA%\baoyu-skills\chrome-profile`（Windows）
 
 ## 账号信息
 - 公众号 AppID:

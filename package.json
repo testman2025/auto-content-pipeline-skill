@@ -22,6 +22,10 @@
     "tiktok:login": "uv run python tiktok-skills/scripts/cli.py login",
     "tiktok:publish": "uv run python tiktok-skills/scripts/cli.py publish",
     "tiktok:check-login": "uv run python tiktok-skills/scripts/cli.py check-login",
+    "x:login": "node x-skills/scripts/cli.mjs login",
+    "x:publish": "node x-skills/scripts/cli.mjs publish",
+    "x:check-login": "node x-skills/scripts/cli.mjs check-login",
+    "x:preflight": "node x-skills/scripts/cli.mjs preflight",
     "overseas:install": "powershell -ExecutionPolicy Bypass -File scripts/install-overseas-tools.ps1"
   }
 }

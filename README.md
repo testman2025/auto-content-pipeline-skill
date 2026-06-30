@@ -77,7 +77,8 @@ auto-content-pipeline-skill/
     ├── skills/youtube-upload/  # sau 契约（social-auto-upload）
     └── skills/yt-{auth,publish,create,pipeline}/
 ├── linkedin-skills/         # LinkedIn（jarvis-survives/openclaw-linkedin-skill）
-└── tiktok-skills/           # TikTok 海外（social-auto-upload tk_uploader）
+├── tiktok-skills/           # TikTok 海外（social-auto-upload tk_uploader）
+└── x-skills/                # X/Twitter（baoyu-post-to-x CDP）
 ```
 
 ## 常用命令
@@ -89,6 +90,8 @@ auto-content-pipeline-skill/
 | `bash scripts/check-deps.sh` | 检查依赖与登录态 |
 | `node youtube-skills/scripts/cli.mjs pipeline` | YouTube 全流程 |
 | `npm run youtube:publish -- --video "..." --title "..."` | YouTube 发布快捷方式 |
+| `npm run x:login` | X/Twitter 登录（Chrome CDP profile） |
+| `npm run x:publish -- --text "..."` | X 常规帖填稿 |
 
 ## 关联技能
 

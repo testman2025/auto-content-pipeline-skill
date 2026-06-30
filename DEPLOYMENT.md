@@ -2,7 +2,7 @@
 
 一条指令触发：选题采集 → 适配矩阵 → 写稿 → 润色 → 配图 → 发布
 
-支持平台：**知乎** · **小红书** · **抖音** · **YouTube** · **LinkedIn** · **TikTok**
+支持平台：**知乎** · **小红书** · **抖音** · **YouTube** · **LinkedIn** · **TikTok** · **X (Twitter)**
 
 ---
 
@@ -96,10 +96,11 @@ publishing/auto-content-pipeline/
 ├── youtube-skills/                     # YouTube（sau + Playwright）
 ├── linkedin-skills/                    # LinkedIn（openclaw-linkedin 衍生）
 ├── tiktok-skills/                      # TikTok 海外（social-auto-upload tk）
+├── x-skills/                           # X/Twitter（baoyu-post-to-x 封装）
 ├── tool/                               # 海外依赖 clone（gitignore）
-│   ├── SKILL.md
-│   ├── scripts/cli.mjs
-│   └── skills/yt-{auth,publish,create,pipeline}/
+│   ├── social-auto-upload/
+│   ├── openclaw-linkedin-skill/
+│   └── baoyu-skills/                   # sparse: baoyu-post-to-x
 └── scripts/
     ├── check-deps.sh                     # 依赖检查脚本
     └── install-deps.sh                   # 一键安装脚本
