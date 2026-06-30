@@ -47,7 +47,7 @@ metadata:
 | **公众号** | ✅ 已跑通 | baoyu + 微信官方 AppID/Secret | `bun scripts/wechat-api.ts ...` → 草稿箱 |
 | **抖音** | ✅ 已跑通 | PVA | `npm run douyin:login` → `npm run douyin:upload` |
 | **配图 tokenware** | ✅ 已跑通 | tokenware-image gpt-image-2 | `npm run image:generate -- --platform zhihu ...` |
-| **知乎** | ✅ 链路就绪 | pyzhihu-cli | `zhihu login --qrcode` → `zhihu article ...` |
+| **知乎** | ✅ 链路就绪 | `skills/zhihu` + pyzhihu-cli | `zhihu:login` → `zhihu:publish --content-file ...`（MD→HTML） |
 | **小红书** | ✅ 链路就绪 | skills/xiaohongshu + Chrome 扩展 | `skills/xiaohongshu/scripts/cli.py publish ...` |
 | **TikTok 海外** | ✅ 链路就绪 | social-auto-upload tk_uploader | `uv run python skills/tiktok/scripts/cli.py publish ...` |
 | **LinkedIn** | ⚠️ 登录已修复，自动发帖停用 | 系统 Chrome + Playwright | 2026-06-30 发帖触发封号；默认只生成文稿 |
@@ -96,7 +96,7 @@ metadata:
 │  Step 5: 自动发布 + 分发                          │
 │   → 公众号: baoyu-post-to-wechat（微信官方 AppID/Secret + API）│
 │   → 小红书: xiaohongshu-publish (XHS Bridge)       │
-│   → 知乎: pyzhihu-cli                                │
+│   → 知乎: skills/zhihu（MD→HTML API）                │
 │   → 抖音: PVA (@panda-video-automation/pva)          │
 └──────────────────────────────────────────────────┘
 ```
@@ -370,7 +370,7 @@ uv run python skills/image/scripts/cli.py generate `
 |------|------|------|
 | **公众号** | **baoyu-post-to-wechat + 微信官方 AppID/Secret** | API 进草稿箱；本地 IP 不在白名单时用 baoyu `remote-api` |
 | **抖音** | **PVA**（`@panda-video-automation/pva`） | `npm run douyin:login` 扫码一次 |
-| 知乎 | pyzhihu-cli | `zhihu login --qrcode` |
+| 知乎 | skills/zhihu | `npm run zhihu:login` → `npm run zhihu:publish` |
 | 小红书 | skills/xiaohongshu + Chrome 扩展 | 本地浏览器 |
 
 > 不使用 wx.limyai、douyin-publish（MCP）等第三方替代路径，避免安装脚本与用户文档分叉。
@@ -425,11 +425,21 @@ python scripts/cli.py publish \
 
 ### 知乎发布
 
-加载 **publishing-zhihu** 技能（CLI：`pyzhihu-cli`）：
+加载 **skills/zhihu**（MD → 多段落 HTML → pyzhihu API，**不要**再用 `zhihu article` 直传 .md）：
 
-```bash
-source ~/venvs/zhihu/Scripts/activate
-zhihu article "标题" "$(cat D:/test/hermes/文章/知乎/{filename}.md)"
+```powershell
+# 首次登录
+npm run zhihu:login
+npm run zhihu:check-login
+
+# 只转 HTML 预览
+npm run zhihu:convert -- --content-file "D:/test/hermes/文章/知乎/{filename}.md"
+
+# 发布（自动写同目录 {filename}.html 并提交）
+npm run zhihu:publish -- --title "文章标题" --content-file "D:/test/hermes/文章/知乎/{filename}.md"
+
+# 可选封面
+npm run zhihu:publish -- --title "标题" --content-file "..." --image "D:/test/hermes/图片/知乎/cover.png"
 ```
 
 ### 抖音发布（PVA）
@@ -510,7 +520,7 @@ if user-profile.X == 启用 and 存在 X 文稿/短帖:
 |------|------|---------|------|
 | 公众号 | ✅/❌ | media_id / 草稿箱 | baoyu 官方 API |
 | 小红书 | ✅/❌ | 笔记链接 | Bridge + 扩展 |
-| 知乎 | ✅/❌ | 文章链接 | pyzhihu-cli |
+| 知乎 | ✅/❌ | 文章链接 | skills/zhihu（HTML） |
 | 抖音 | ✅/❌ | 视频 ID | PVA |
 | YouTube | ✅/❌ | 视频 URL | sau / Playwright |
 | TikTok | ✅/❌ | tk_uploader | 海外竖版 |

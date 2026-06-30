@@ -42,6 +42,10 @@
     "reddit:validate": "node skills/reddit/scripts/cli.mjs validate-publish",
     "reddit:setup": "powershell -ExecutionPolicy Bypass -File scripts/install-reddit-extension.ps1",
     "reddit:patch": "node scripts/patch-reddit-publish.mjs",
+    "zhihu:login": "node skills/zhihu/scripts/cli.mjs login",
+    "zhihu:check-login": "node skills/zhihu/scripts/cli.mjs check-login",
+    "zhihu:convert": "node skills/zhihu/scripts/cli.mjs convert",
+    "zhihu:publish": "node skills/zhihu/scripts/cli.mjs publish",
     "overseas:install": "powershell -ExecutionPolicy Bypass -File scripts/install-overseas-tools.ps1"
   }
 }

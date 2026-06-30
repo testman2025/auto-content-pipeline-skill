@@ -14,7 +14,7 @@
 | **公众号** | ✅ 已跑通 | baoyu `wechat-api.ts` → 草稿箱 |
 | **抖音** | ✅ 已跑通 | `npm run douyin:login` → `npm run douyin:upload` |
 | **配图** | ✅ 已跑通 | `npm run image:generate -- --platform zhihu ...` |
-| **知乎** | ✅ 链路就绪 | `zhihu login --qrcode` → `zhihu article ...` |
+| **知乎** | ✅ 链路就绪 | `npm run zhihu:login` → `npm run zhihu:publish -- --title ... --content-file ...` |
 | **小红书** | ✅ 链路就绪 | `skills/xiaohongshu/scripts/cli.py publish ...` |
 | **TikTok** | ✅ 链路就绪 | `npm run tiktok:publish` |
 | **LinkedIn** | ⚠️ 登录已修复，发帖停用 | 默认只生成文稿 |

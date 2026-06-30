@@ -10,6 +10,7 @@ clone 本仓库即可用，由 **auto-content-pipeline 老兵 Agent** 在 Step 5
 | `tiktok/` | TikTok 海外 sau |
 | `x/` | X/Twitter（baoyu-post-to-x 封装） |
 | `reddit/` | Reddit（1146345502/reddit-skills 扩展桥） |
+| `zhihu/` | 知乎专栏（MD→HTML + pyzhihu API） |
 | `image/` | tokenware 生图（`tokenware-image`） |
 
 ## 子技能注册

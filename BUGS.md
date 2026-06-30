@@ -1,5 +1,22 @@
 # Bug 修复记录
 
+## 2026-06-30 — 知乎发布整篇糊成一坨（无换行/无分段）
+
+**现象**：`zhihu article` 发布专栏后正文挤成一段，空行分段和 `**加粗**` 均失效。
+
+**原因**：
+- `pyzhihu-cli` 的 `zhihu article` 将全文包进单个 `<p>{content}</p>`，HTML 折叠换行
+- 流水线原先把 `.md` 原文当字符串直传，无 MD→HTML 转换
+
+**修复**：
+- 新增 `skills/zhihu/`：`markdownToZhihuHtml` → 多 `<p>` 段落 HTML
+- `publish.py` 直调 `ZhihuClient.create_article`，绕过 CLI 单段包裹
+- 命令：`npm run zhihu:convert` / `npm run zhihu:publish -- --title ... --content-file ...`
+
+**验证**：`npm run zhihu:convert -- --content-file D:/test/hermes/文章/知乎/xxx.md` 检查 `.html` 分段；`npm run zhihu:publish -- --dry-run` 只生成 HTML
+
+---
+
 ## 2026-06-30 — LinkedIn 登录「This browser or app may not be secure」
 
 **现象**：`npm run linkedin:login` 打开 Playwright 自带 Chromium，Google/LinkedIn 判定为不安全浏览器，无法登录。
