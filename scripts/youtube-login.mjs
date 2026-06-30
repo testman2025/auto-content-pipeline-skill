@@ -1,37 +1,12 @@
 /**
- * YouTube Studio 登录（英文/中文界面，浏览器不自动关闭）
+ * YouTube Studio 登录 — 打开/复用同一浏览器窗口，不自动关闭
  */
-import { chromium } from 'playwright';
-import { mkdirSync } from 'fs';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
 import readline from 'readline';
 import {
-  isStudioLoggedIn,
-  STUDIO_LOGGED_IN,
-} from './lib/youtube-studio-i18n.mjs';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const rootDir = join(__dirname, '..');
-const authFile = join(
-  rootDir,
-  'node_modules/@panda-video-automation/pva/playwright/.auth/youtube.json'
-);
-const profileDir = join(rootDir, 'playwright/.profile/youtube');
-
-const STUDIO_URL =
-  process.env.YOUTUBE_STUDIO_URL ||
-  'https://studio.youtube.com/channel/me/videos/upload';
-
-mkdirSync(dirname(authFile), { recursive: true });
-mkdirSync(profileDir, { recursive: true });
-
-async function saveAuth(context, reason) {
-  await context.storageState({ path: authFile });
-  const count = (await context.cookies()).length;
-  console.log(`[${new Date().toLocaleTimeString('zh-CN')}] 登录态已保存 (${reason})，cookies=${count}`);
-  console.log(`  → ${authFile}`);
-}
+  acquireYouTubePage,
+  ensureStudioLoggedIn,
+  navigateStudioUpload,
+} from './lib/youtube-browser.mjs';
 
 function waitForEnter(message) {
   return new Promise((resolve) => {
@@ -43,40 +18,24 @@ function waitForEnter(message) {
   });
 }
 
-console.log('=== YouTube Studio 登录（EN/ZH，浏览器保持打开）===');
+console.log('=== YouTube Studio 登录（单窗口，不自动关闭）===\n');
+console.log('提示: 若要用你已打开的 Chrome，先执行:');
+console.log('  chrome.exe --remote-debugging-port=9222');
+console.log('  $env:CHROME_CDP_URL="http://127.0.0.1:9222"\n');
 
-const context = await chromium.launchPersistentContext(profileDir, {
-  headless: false,
-  viewport: { width: 1920, height: 1080 },
-  locale: 'en-US',
-  args: ['--disable-blink-features=AutomationControlled'],
-});
+const session = await acquireYouTubePage();
+const { page, context, mode } = session;
 
-const page = context.pages()[0] || (await context.newPage());
-await page.goto(STUDIO_URL, { waitUntil: 'domcontentloaded', timeout: 120000 });
+await navigateStudioUpload(page);
+const ok = await ensureStudioLoggedIn(page, context);
 
-let saved = false;
-const deadline = Date.now() + 15 * 60 * 1000;
-
-while (Date.now() < deadline) {
-  if (await isStudioLoggedIn(page)) {
-    await page.waitForTimeout(2000);
-    await saveAuth(context, 'Studio 已登录');
-    saved = true;
-    break;
-  }
-  const elapsed = Math.floor((Date.now() - (deadline - 15 * 60 * 1000)) / 1000);
-  console.log(`等待登录中... ${elapsed}s`);
-  await page.waitForTimeout(5000);
-}
-
-if (!saved) {
-  console.error('15 分钟内未检测到 Studio 登录。支持识别:', STUDIO_LOGGED_IN.join(', '));
-  await waitForEnter('按 Enter 关闭浏览器...');
-  await context.close();
+if (!ok) {
+  console.error('登录失败或超时');
+  await session.release();
   process.exit(1);
 }
 
-console.log('\n登录成功。可执行: npm run youtube:upload -- <视频路径> <标题>');
-await waitForEnter('按 Enter 关闭浏览器...');
-await context.close();
+console.log(`\n✅ 登录成功（模式: ${mode}）`);
+console.log('接下来发布: npm run youtube:publish -- <视频> <标题>');
+await waitForEnter('\n按 Enter 结束脚本（浏览器窗口保持打开）...');
+await session.release();

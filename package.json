@@ -10,7 +10,8 @@
     "setup": "bash scripts/install-deps.sh",
     "postinstall": "node scripts/patch-pva-youtube-i18n.mjs",
     "youtube:login": "node scripts/youtube-login.mjs",
-    "youtube:upload": "node scripts/youtube-upload.mjs",
+    "youtube:publish": "node scripts/youtube-publish.mjs",
+    "youtube:upload": "node scripts/youtube-publish.mjs",
     "youtube:patch-pva": "node scripts/patch-pva-youtube-i18n.mjs"
   }
 }

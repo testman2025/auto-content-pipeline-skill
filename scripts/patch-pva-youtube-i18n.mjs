@@ -58,7 +58,7 @@ const WIZARD_PATCH = `    // Step 8: Wizard — EN/ZH (skip slow legacy privacy 
 });`;
 
 let loginJs = readFileSync(files.login, 'utf8');
-if (loginJs.includes('频道信息中心').first()')) {
+if (loginJs.includes('Verifying login by checking for 频道信息中心')) {
   loginJs = loginJs.replace(
     `console.log('🔍 Verifying login by checking for 频道信息中心...');
     const dashboardText = page.getByText('频道信息中心').first();

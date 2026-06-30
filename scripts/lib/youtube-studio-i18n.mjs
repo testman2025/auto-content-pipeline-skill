@@ -101,18 +101,33 @@ export async function fillTitle(page, title) {
 
 export async function uploadViaStudioPage(page, videoPath) {
   const channelId = process.env.YOUTUBE_CHANNEL_ID || 'me';
-  await page.goto(`https://studio.youtube.com/channel/${channelId}/videos/upload`, {
-    waitUntil: 'domcontentloaded',
-    timeout: 120000,
-  });
-  await page.waitForTimeout(3000);
+  const target = `https://studio.youtube.com/channel/${channelId}/videos/upload`;
+
+  if (!page.url().includes('/videos/upload')) {
+    await page.goto(target, {
+      waitUntil: 'domcontentloaded',
+      timeout: 120000,
+    });
+    await page.waitForTimeout(3000);
+  } else {
+    console.log('在当前上传页继续操作（不新开标签）');
+  }
   await dismissStudioPopups(page);
 
   if (await page.locator('text=Sign in').first().isVisible().catch(() => false)) {
     throw new Error('未登录，请运行 npm run youtube:login');
   }
 
-  // 英文 Studio：先出现 Select files / 拖放对话框
+  const titleVisible = await page
+    .getByRole('textbox', { name: /title/i })
+    .first()
+    .isVisible()
+    .catch(() => false);
+  if (titleVisible) {
+    console.log('上传对话框已打开，跳过选文件');
+    return;
+  }
+
   const selectFilesBtn = page.getByRole('button', { name: /^(Select files|选择文件)$/ });
   if (await selectFilesBtn.isVisible().catch(() => false)) {
     const [fileChooser] = await Promise.all([
@@ -121,6 +136,8 @@ export async function uploadViaStudioPage(page, videoPath) {
     ]);
     await fileChooser.setFiles(videoPath);
   } else {
+    console.log('打开 Create → Upload videos...');
+    await clickCreateUpload(page);
     const fileInput = page.locator('input[type="file"]').first();
     await fileInput.waitFor({ state: 'attached', timeout: 60000 });
     await fileInput.setInputFiles(videoPath);

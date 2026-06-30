@@ -64,17 +64,19 @@ hermes -s auto-content-pipeline -q "帮我跑一篇内容，话题：TK小店选
 
 生图走 tokenware.ai `gpt-image-2` 模型，无需额外配置。FAL 账号余额已耗尽，不要尝试。
 
-### 6. YouTube 发布
-
-> **不要用 `pva youtube login`**：Playwright 测试结束后会**自动关闭浏览器**；且只认中文「频道信息中心」，英文 Studio 会验证失败。
+### 6. YouTube 发布（单标签完整流程）
 
 ```bash
-# 登录（浏览器保持打开，登录成功后再按 Enter 关闭）
-npm run youtube:login
+# 推荐：附着到已打开的 Chrome（不新开窗口）
+$env:CHROME_CDP_URL = "http://127.0.0.1:9222"
+npm run youtube:publish -- "D:/test/hermes/视频/xxx.mp4" "标题"
 
-# 上传（默认不公开列出）
-node scripts/youtube-upload.mjs "D:/test/hermes/视频/xxx.mp4" "视频标题"
+# 或使用持久化 Playwright 窗口（login 一次，以后同一窗口）
+npm run youtube:login
+npm run youtube:publish -- "D:/test/hermes/视频/xxx.mp4" "标题"
 ```
+
+详见 `references/youtube-publishing.md`
 
 ---
 
