@@ -99,24 +99,42 @@ export async function fillTitle(page, title) {
   throw new Error('未找到标题输入框（Title / 标题）');
 }
 
-export async function uploadViaDirectPage(page, videoPath) {
-  await page.goto('https://www.youtube.com/upload', {
+export async function uploadViaStudioPage(page, videoPath) {
+  const channelId = process.env.YOUTUBE_CHANNEL_ID || 'me';
+  await page.goto(`https://studio.youtube.com/channel/${channelId}/videos/upload`, {
     waitUntil: 'domcontentloaded',
     timeout: 120000,
   });
-  await page.waitForTimeout(4000);
+  await page.waitForTimeout(3000);
+  await dismissStudioPopups(page);
+
   if (await page.locator('text=Sign in').first().isVisible().catch(() => false)) {
     throw new Error('未登录，请运行 npm run youtube:login');
   }
-  const fileInput = page.locator('input[type="file"]').first();
-  await fileInput.waitFor({ state: 'attached', timeout: 60000 });
-  await fileInput.setInputFiles(videoPath);
-  // 等待上传对话框出现
-  await page.waitForSelector(
-    '[aria-label*="title" i], [aria-label*="Add a title" i], #title-textarea',
-    { timeout: 120000 }
-  );
+
+  // 英文 Studio：先出现 Select files / 拖放对话框
+  const selectFilesBtn = page.getByRole('button', { name: /^(Select files|选择文件)$/ });
+  if (await selectFilesBtn.isVisible().catch(() => false)) {
+    const [fileChooser] = await Promise.all([
+      page.waitForEvent('filechooser', { timeout: 60000 }),
+      selectFilesBtn.click(),
+    ]);
+    await fileChooser.setFiles(videoPath);
+  } else {
+    const fileInput = page.locator('input[type="file"]').first();
+    await fileInput.waitFor({ state: 'attached', timeout: 60000 });
+    await fileInput.setInputFiles(videoPath);
+  }
+
+  // 选文件后才出现 Title 输入框
+  const titleBox = page.getByRole('textbox', { name: /title/i }).first();
+  await titleBox.waitFor({ state: 'visible', timeout: 180000 });
   await page.waitForTimeout(2000);
+}
+
+/** @deprecated 使用 uploadViaStudioPage */
+export async function uploadViaDirectPage(page, videoPath) {
+  return uploadViaStudioPage(page, videoPath);
 }
 
 export async function completeUploadWizard(page, { privacy = 'unlisted' } = {}) {

@@ -10,7 +10,7 @@ import {
   dismissStudioPopups,
   fillTitle,
   isStudioLoggedIn,
-  uploadViaDirectPage,
+  uploadViaStudioPage,
 } from './lib/youtube-studio-i18n.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -76,8 +76,8 @@ if (!(await isStudioLoggedIn(page))) {
   process.exit(1);
 }
 
-console.log('打开 YouTube 上传页...');
-await uploadViaDirectPage(page, videoPath);
+console.log('打开 YouTube Studio 上传页...');
+await uploadViaStudioPage(page, videoPath);
 await dismissStudioPopups(page);
 
 console.log(`标题: ${title}`);
