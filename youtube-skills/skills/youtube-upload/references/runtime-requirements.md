@@ -6,6 +6,7 @@
 cd auto-content-pipeline-skill
 powershell -ExecutionPolicy Bypass -File scripts/install-overseas-tools.ps1
 cd tool/social-auto-upload
+copy conf.example.py conf.py
 uv pip install -e .
 patchright install chromium
 ```

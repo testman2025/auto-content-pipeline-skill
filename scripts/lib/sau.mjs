@@ -17,16 +17,17 @@ export function resolveSauCmd() {
   if (process.env.SAU_CLI_COMMAND) {
     return process.env.SAU_CLI_COMMAND.split(' ');
   }
-  const winExe = join(sauRoot, '.venv/Scripts/sau.exe');
-  const winPy = join(sauRoot, '.venv/Scripts/sau');
-  if (existsSync(winExe)) return [winExe];
-  if (existsSync(winPy)) return [winPy];
-  return ['uv', 'run', '--directory', sauRoot, 'sau'];
+  return ['uv', 'run', '--directory', sauRoot, 'python', 'sau_cli.py'];
 }
 
 export function runSau(args, opts = {}) {
   if (!existsSync(join(sauRoot, 'sau_cli.py'))) {
     throw new Error(`social-auto-upload 未安装: ${sauRoot}`);
+  }
+  if (!existsSync(join(sauRoot, 'conf.py'))) {
+    throw new Error(
+      `缺少 conf.py，请执行: Copy-Item tool/social-auto-upload/conf.example.py tool/social-auto-upload/conf.py`
+    );
   }
   const cmd = [...resolveSauCmd(), ...args];
   const headed = process.env.SAU_HEADED === 'true';
@@ -38,6 +39,7 @@ export function runSau(args, opts = {}) {
     stdio: opts.silent ? 'pipe' : 'inherit',
     shell: false,
     encoding: 'utf8',
+    cwd: sauRoot,
     ...opts,
   });
   if (r.status !== 0) {

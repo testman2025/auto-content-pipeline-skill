@@ -15,6 +15,12 @@ function Ensure-Clone($name, $url) {
   }
   Write-Host "[clone] $url -> $dest"
   git clone --depth 1 $url $dest
+  $confExample = Join-Path $dest "conf.example.py"
+  $conf = Join-Path $dest "conf.py"
+  if ((Test-Path $confExample) -and -not (Test-Path $conf)) {
+    Copy-Item $confExample $conf
+    Write-Host "[ok] created conf.py from conf.example.py"
+  }
   return $dest
 }
 
