@@ -1,8 +1,24 @@
 # auto-content-pipeline 社媒全自动流水线
 
-一条指令触发：选题采集 → 适配矩阵 → 写稿 → 润色 → 配图 → 发布
+**8 年社媒运营老兵 Agent** — 一条指令：选题 → 矩阵 → 写稿 → 润色 → 配图 → 发布
 
 支持平台：**知乎** · **小红书** · **抖音（PVA）** · **公众号（baoyu 官方 API）** · **YouTube** · **LinkedIn** · **TikTok** · **X**
+
+---
+
+## 已验证发布能力（2026-06-30）
+
+| 平台 | 状态 | 命令示例 |
+|------|------|----------|
+| **YouTube** | ✅ 已跑通 | `npm run youtube:publish -- --video "..." --title "..."` |
+| **公众号** | ✅ 已跑通 | baoyu `wechat-api.ts` → 草稿箱 |
+| **抖音** | ✅ 已跑通 | `npm run douyin:login` → `npm run douyin:upload` |
+| **配图** | ✅ 已跑通 | `npm run image:generate -- --platform zhihu ...` |
+| **知乎** | ✅ 链路就绪 | `zhihu login --qrcode` → `zhihu article ...` |
+| **小红书** | ✅ 链路就绪 | `skills/xiaohongshu/scripts/cli.py publish ...` |
+| **TikTok** | ✅ 链路就绪 | `npm run tiktok:publish` |
+| **LinkedIn** | ⚠️ 登录已修复，发帖停用 | 默认只生成文稿 |
+| **X** | ⚠️ 链路已接入，发帖停用 | 默认只生成文稿 |
 
 ---
 

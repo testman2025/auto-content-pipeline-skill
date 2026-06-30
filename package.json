@@ -1,7 +1,7 @@
 {
   "name": "auto-content-pipeline",
-  "version": "1.3.0",
-  "description": "社媒全自动流水线 — 知乎/小红书/抖音/公众号(baoyu官方API+PVA)",
+  "version": "1.4.0",
+  "description": "8年社媒运营老兵 Agent — 知乎/小红书/抖音/公众号/YouTube 全自动流水线",
   "dependencies": {
     "@panda-video-automation/pva": "latest"
   },

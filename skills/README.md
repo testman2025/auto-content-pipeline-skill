@@ -1,6 +1,6 @@
 # skills/ — 内置 Hermes 技能包（进 Git）
 
-clone 本仓库即可用，无需先跑 `tool/` 安装脚本。
+clone 本仓库即可用，由 **auto-content-pipeline 老兵 Agent** 在 Step 5 按平台路由调用。
 
 | 目录 | 用途 |
 |------|------|
