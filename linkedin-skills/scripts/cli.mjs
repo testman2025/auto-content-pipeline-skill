@@ -48,8 +48,19 @@ async function cmdCheckLogin() {
   const { context, page } = await acquirePage();
   try {
     await page.goto('https://www.linkedin.com/feed/', { waitUntil: 'domcontentloaded', timeout: 120000 });
-    const loggedIn = !(await page.locator('text=Sign in').first().isVisible().catch(() => false));
-    console.log(JSON.stringify({ ok: true, loggedIn, url: page.url() }, null, 2));
+    await page.waitForTimeout(2000);
+    const url = page.url();
+    const onLoginPage =
+      url.includes('/login') ||
+      url.includes('/uas/') ||
+      (await page.locator('input#username, input[name="session_key"]').first().isVisible().catch(() => false));
+    const hasStartPost = await page
+      .getByRole('button', { name: /Start a post|开始发帖/i })
+      .first()
+      .isVisible()
+      .catch(() => false);
+    const loggedIn = !onLoginPage && hasStartPost;
+    console.log(JSON.stringify({ ok: true, loggedIn, url }, null, 2));
     process.exit(loggedIn ? 0 : 1);
   } finally {
     await context.close();
