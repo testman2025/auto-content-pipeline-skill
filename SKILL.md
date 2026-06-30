@@ -413,11 +413,11 @@ patchright install chromium
 
 **YouTube** 优先 `sau youtube`（social-auto-upload）；失败时自动回退 Playwright（`YOUTUBE_PUBLISH_BACKEND=playwright` 可强制）。
 
-**LinkedIn** 基于 [openclaw-linkedin-skill](https://github.com/jarvis-survives/openclaw-linkedin-skill) 的浏览器发帖流程，本仓库 `linkedin-skills/scripts/cli.mjs` 使用 **系统 Chrome**（`channel: chrome`），避免 Playwright Chromium 触发「浏览器不安全」拦截。
+**LinkedIn** 基于 [openclaw-linkedin-skill](https://github.com/jarvis-survives/openclaw-linkedin-skill)，使用系统 Chrome。**高风险**：无个人发帖 API，自动化极易封号；默认建议仅生成文稿或人工发布。
 
 **TikTok** 基于 social-auto-upload `tk_uploader`（tiktok.com），与抖音 `sau douyin` 不同。
 
-**X (Twitter)** 基于 [baoyu-post-to-x](https://github.com/JimLiu/baoyu-skills#baoyu-post-to-x)（Chrome CDP）。本仓库 `x-skills/scripts/cli.mjs` 封装上游脚本；`npm run overseas:install` 会 sparse-clone 到 `tool/baoyu-skills`。默认填稿预览、用户手动点 Post；`--submit` 可自动发布。
+**X (Twitter)** 基于 [baoyu-post-to-x](https://github.com/JimLiu/baoyu-skills#baoyu-post-to-x)（Chrome CDP）。**高风险**：个人号自动化发帖易触发封号；默认建议仅生成文稿（`user-profile` 关闭 X）或走官方 API。
 
 > Hermes Hub 安装 `baoyu-post-to-x` 可能被安全扫描拦截；流水线通过 `tool/baoyu-skills` 本地引用，不依赖 Hub 安装。
 

@@ -60,5 +60,12 @@
 - 图片: `D:/test/hermes/图片/{平台}/`
 - 视频: `D:/test/hermes/视频/`
 
+## 平台风控提示
+
+X、LinkedIn 对个人账号的**浏览器自动发帖**风控极严，存在封号风险。建议：
+- 默认关闭自动发布，仅生成 `D:/test/hermes/文章/{平台}/` 文稿由人工发布
+- 或使用平台官方 API（通常需企业开发者资质）
+- 勿在同一 Chrome profile 混用多平台敏感登录
+
 ## 海外工具路径（可选）
 - SAU_ROOT: `tool/social-auto-upload`
