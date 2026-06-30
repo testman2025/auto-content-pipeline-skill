@@ -60,6 +60,7 @@ if (Test-Path (Join-Path $reddit "pyproject.toml")) {
   Push-Location $reddit
   uv sync
   Pop-Location
+  node (Join-Path $repo "scripts/patch-reddit-publish.mjs")
 }
 
 Write-Host "[ok] tool/ dependencies ready"

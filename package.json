@@ -40,6 +40,7 @@
     "reddit:search": "node skills/reddit/scripts/cli.mjs search",
     "reddit:publish": "node skills/reddit/scripts/cli.mjs submit-text",
     "reddit:setup": "powershell -ExecutionPolicy Bypass -File scripts/install-reddit-extension.ps1",
+    "reddit:patch": "node scripts/patch-reddit-publish.mjs",
     "overseas:install": "powershell -ExecutionPolicy Bypass -File scripts/install-overseas-tools.ps1"
   }
 }

@@ -63,3 +63,5 @@
 - `check-login` 失败：Reddit Bridge 扩展未在 Chrome 中加载 ❌
 
 **解决**：`npm run reddit:setup` → 在 `chrome://extensions/` 加载 `tool/reddit-skills/extension/`，登录 Reddit 后重试 `npm run reddit:check-login`。
+
+**发布修复（2026-06-30）**：Reddit 发帖页标题改为 `post-composer-title` shadow DOM，上游 `faceplate-textarea-input[name="title"]` 失效。已用 `scripts/patch-reddit-publish.mjs` 修补；`r/test` 测试帖发布成功。
