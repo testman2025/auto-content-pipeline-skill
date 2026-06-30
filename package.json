@@ -34,6 +34,12 @@
     "x:publish": "node skills/x/scripts/cli.mjs publish",
     "x:check-login": "node skills/x/scripts/cli.mjs check-login",
     "x:preflight": "node skills/x/scripts/cli.mjs preflight",
+    "reddit:check-login": "node skills/reddit/scripts/cli.mjs check-login",
+    "reddit:login": "node skills/reddit/scripts/cli.mjs check-login",
+    "reddit:feed": "node skills/reddit/scripts/cli.mjs subreddit-feed",
+    "reddit:search": "node skills/reddit/scripts/cli.mjs search",
+    "reddit:publish": "node skills/reddit/scripts/cli.mjs submit-text",
+    "reddit:setup": "powershell -ExecutionPolicy Bypass -File scripts/install-reddit-extension.ps1",
     "overseas:install": "powershell -ExecutionPolicy Bypass -File scripts/install-overseas-tools.ps1"
   }
 }

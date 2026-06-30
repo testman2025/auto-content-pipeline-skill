@@ -455,7 +455,8 @@ npx @panda-video-automation/pva douyin upload `
 | **YouTube** | YouTube: 启用 | `skills/youtube` → `youtube-upload` | `node skills/youtube/scripts/cli.mjs publish --video "..." --title "..."` |
 | **LinkedIn** | LinkedIn: 启用 | `skills/linkedin` → `li-publish` | `node skills/linkedin/scripts/cli.mjs publish --file "D:/test/hermes/文章/LinkedIn/xxx.md"` |
 | **TikTok 海外** | TikTok: 启用 | `skills/tiktok` → `tt-publish` | `uv run python skills/tiktok/scripts/cli.py publish --video "..." --title "..."` |
-| **X (Twitter)** | X: 启用 | `x-skills` → `x-publish`（baoyu-post-to-x） | `node skills/x/scripts/cli.mjs publish --text "..."` 或 `--file "D:/test/hermes/文章/X/xxx.md"` |
+| **X (Twitter)** | X: 启用 | `skills/x` → `x-publish`（baoyu-post-to-x） | `node skills/x/scripts/cli.mjs publish --text "..."` 或 `--file "D:/test/hermes/文章/X/xxx.md"` |
+| **Reddit** | Reddit: 启用 | `skills/reddit` + `tool/reddit-skills` | `npm run reddit:publish -- --subreddit NAME --title-file ... --body-file ...` |
 
 **前置安装（一次性）**：
 
@@ -473,6 +474,8 @@ patchright install chromium
 **TikTok** 基于 social-auto-upload `tk_uploader`（tiktok.com），与抖音 `sau douyin` 不同。
 
 **X (Twitter)** 基于 [baoyu-post-to-x](https://github.com/JimLiu/baoyu-skills#baoyu-post-to-x)（Chrome CDP）。**高风险**：个人号自动化发帖易触发封号；默认建议仅生成文稿（`user-profile` 关闭 X）或走官方 API。
+
+**Reddit** 基于 [1146345502/reddit-skills](https://github.com/1146345502/reddit-skills)（Chrome 扩展桥，非 CDP）。需加载 `tool/reddit-skills/extension/`。控制发帖频率，避免限流。
 
 > Hermes Hub 安装 `baoyu-post-to-x` 可能被安全扫描拦截；流水线通过 `tool/baoyu-skills` 本地引用，不依赖 Hub 安装。
 

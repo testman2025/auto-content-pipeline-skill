@@ -19,6 +19,7 @@
 - LinkedIn: [启用/关闭]
 - TikTok: [启用/关闭]
 - X (Twitter): [启用/关闭]
+- Reddit: [启用/关闭]
 
 ## YouTube 配置（启用时填写）
 - 频道名称:
@@ -42,6 +43,11 @@
 - 字符上限: 280（非 Premium）/ 10000（Premium）
 - 默认标签: #YourTag
 - Chrome profile: `%APPDATA%\baoyu-skills\chrome-profile`（Windows）
+
+## Reddit 配置（启用时填写）
+- 默认 subreddit: (如 learnpython)
+- 扩展路径: `tool/reddit-skills/extension/`（`npm run reddit:setup` 打开安装页）
+- 桥接地址: `ws://localhost:9334`（默认）
 
 ## 账号信息
 - 公众号 AppID: （微信公众平台 → 开发 → 基本配置）
@@ -70,6 +76,7 @@
 | 公众号 / 抖音 / 配图 | ✅ 推荐 | baoyu API、PVA、tokenware-image 已验证 |
 | 知乎 / 小红书 / TikTok | ✅ 可用 | 链路就绪，需各平台首次登录 |
 | LinkedIn / X | ❌ 默认关闭 | 2026-06-30 自动发帖触发封号，仅生成文稿 |
+| Reddit | ⚠️ 扩展桥 | 需 Chrome 加载 Reddit Bridge；控制发帖频率 |
 
 X、LinkedIn 对个人账号的**浏览器自动发帖**风控极严。建议：
 - 默认关闭自动发布，仅生成 `D:/test/hermes/文章/{平台}/` 文稿由人工发布

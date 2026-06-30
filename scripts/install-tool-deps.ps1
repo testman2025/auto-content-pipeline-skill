@@ -54,5 +54,12 @@ foreach ($name in $requiredBaoyu) {
 
 Ensure-Clone "social-auto-upload" "https://github.com/dreammis/social-auto-upload.git" | Out-Null
 Ensure-Clone "openclaw-linkedin-skill" "https://github.com/jarvis-survives/openclaw-linkedin-skill.git" | Out-Null
+$reddit = Ensure-Clone "reddit-skills" "https://github.com/1146345502/reddit-skills.git"
+if (Test-Path (Join-Path $reddit "pyproject.toml")) {
+  Write-Host "[uv] reddit-skills"
+  Push-Location $reddit
+  uv sync
+  Pop-Location
+}
 
 Write-Host "[ok] tool/ dependencies ready"

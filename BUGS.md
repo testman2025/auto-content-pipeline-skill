@@ -50,3 +50,16 @@
 - 海外文本分发优先考虑 **官方 API**（如 X API / LinkedIn Company API，需企业资质）
 - 或改为 **只生成文稿 + 人工发布**（`发布偏好: 只生成清单`）
 - YouTube 继续走 sau / Studio，与 X/LinkedIn 登录 profile 隔离
+
+---
+
+## 2026-06-30 — Reddit skills 接入测试（扩展未连接）
+
+**接入**：`tool/reddit-skills`（1146345502/reddit-skills）+ `skills/reddit/` 封装。
+
+**测试结果**：
+- `uv sync`、Bridge 服务自动启动 ✅
+- Chrome 自动打开 ✅
+- `check-login` 失败：Reddit Bridge 扩展未在 Chrome 中加载 ❌
+
+**解决**：`npm run reddit:setup` → 在 `chrome://extensions/` 加载 `tool/reddit-skills/extension/`，登录 Reddit 后重试 `npm run reddit:check-login`。

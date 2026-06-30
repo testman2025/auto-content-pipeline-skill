@@ -40,6 +40,13 @@ if (Test-Path $toolBaoyu) {
   }
 }
 
+$toolReddit = Join-Path $repo "tool/reddit-skills/skills"
+if (Test-Path $toolReddit) {
+  Get-ChildItem $toolReddit -Directory | ForEach-Object {
+    Register-SkillDir $_.FullName $_.Name
+  }
+}
+
 Write-Host ""
 Write-Host "Main pipeline: copy repo to auto-content-pipeline"
 $mainTarget = Join-Path $hermesPublishing "auto-content-pipeline"
