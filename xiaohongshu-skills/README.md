@@ -211,7 +211,6 @@ xiaohongshu-skills/
 │   ├── xhs-interact/SKILL.md
 │   └── xhs-content-ops/SKILL.md
 ├── SKILL.md                        # 技能统一入口（路由到子技能）
-├── CLAUDE.md                       # 项目开发指南
 ├── pyproject.toml
 └── README.md
 ```
