@@ -64,4 +64,6 @@
 
 **解决**：`npm run reddit:setup` → 在 `chrome://extensions/` 加载 `tool/reddit-skills/extension/`，登录 Reddit 后重试 `npm run reddit:check-login`。
 
-**发布修复（2026-06-30）**：Reddit 发帖页标题改为 `post-composer-title` shadow DOM，上游 `faceplate-textarea-input[name="title"]` 失效。已用 `scripts/patch-reddit-publish.mjs` 修补；`r/test` 测试帖发布成功。
+**发布修复（2026-06-30）**：Reddit 发帖页标题改为 `post-composer-title` shadow DOM。已用 `scripts/patch-reddit-publish.mjs` 修补。
+
+**测试帖被筛（2026-06-30）**：向 `r/test`、`r/cicd` 发 integration test 文案被 Reddit 筛选器移除；`r/TikTokshop` 正式帖亦未保留。已加 `scripts/lib/reddit-quality.mjs` 发布前门禁：禁测试版块、禁测试关键词、禁 hashtag、正文长度下限。

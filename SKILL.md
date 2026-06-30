@@ -475,7 +475,7 @@ patchright install chromium
 
 **X (Twitter)** 基于 [baoyu-post-to-x](https://github.com/JimLiu/baoyu-skills#baoyu-post-to-x)（Chrome CDP）。**高风险**：个人号自动化发帖易触发封号；默认建议仅生成文稿（`user-profile` 关闭 X）或走官方 API。
 
-**Reddit** 基于 [1146345502/reddit-skills](https://github.com/1146345502/reddit-skills)（Chrome 扩展桥，非 CDP）。需加载 `tool/reddit-skills/extension/`。控制发帖频率，避免限流。
+**Reddit** 基于 [1146345502/reddit-skills](https://github.com/1146345502/reddit-skills)（Chrome 扩展桥）。发布前经 `reddit-quality` 门禁：禁 `r/test`、禁测试文案/hashtag、正文长度下限。先 `npm run reddit:validate` 再 `reddit:publish`。
 
 > Hermes Hub 安装 `baoyu-post-to-x` 可能被安全扫描拦截；流水线通过 `tool/baoyu-skills` 本地引用，不依赖 Hub 安装。
 

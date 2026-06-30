@@ -38,7 +38,8 @@
     "reddit:login": "node skills/reddit/scripts/cli.mjs check-login",
     "reddit:feed": "node skills/reddit/scripts/cli.mjs subreddit-feed",
     "reddit:search": "node skills/reddit/scripts/cli.mjs search",
-    "reddit:publish": "node skills/reddit/scripts/cli.mjs submit-text",
+    "reddit:publish": "node skills/reddit/scripts/cli.mjs publish",
+    "reddit:validate": "node skills/reddit/scripts/cli.mjs validate-publish",
     "reddit:setup": "powershell -ExecutionPolicy Bypass -File scripts/install-reddit-extension.ps1",
     "reddit:patch": "node scripts/patch-reddit-publish.mjs",
     "overseas:install": "powershell -ExecutionPolicy Bypass -File scripts/install-overseas-tools.ps1"
