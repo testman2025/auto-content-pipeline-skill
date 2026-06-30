@@ -12,6 +12,7 @@
     "youtube:login": "node scripts/youtube-login.mjs",
     "youtube:publish": "node scripts/youtube-publish.mjs",
     "youtube:upload": "node scripts/youtube-publish.mjs",
+    "youtube:pipeline": "node scripts/run-youtube-pipeline.mjs",
     "youtube:patch-pva": "node scripts/patch-pva-youtube-i18n.mjs"
   }
 }

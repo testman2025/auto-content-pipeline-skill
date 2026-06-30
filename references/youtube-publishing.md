@@ -55,3 +55,18 @@ npm run youtube:publish -- ...  # 在同一窗口继续上传发布
 ## 不要用
 
 - `pva youtube login` — 测试结束会关浏览器，且只认中文验证
+
+## 完整内容流水线（`youtube:pipeline`）
+
+从用户画像到发布一条龙（选题脚本 → TTS → 合成 16:9 视频 → Studio 发布）：
+
+```powershell
+cd D:\test\agent\hermes\auto-content-pipeline-skill
+# 先复制 user-profile.template.md → user-profile.md 并填写频道信息
+npm run youtube:pipeline
+```
+
+产出归档在 `D:/test/hermes/`：
+- `文章/YouTube/` — 英文口播稿
+- `视频/` — MP4 + 配音
+- `*_youtube发布报告.md` — 发布记录

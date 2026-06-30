@@ -14,8 +14,14 @@
 - 公众号: [启用/关闭]
 - 小红书: [启用/关闭]
 - 抖音: [启用/关闭]
+- YouTube: [启用/关闭]
 
-## 账号信息
+## YouTube 配置（启用时填写）
+- 频道名称:
+- 频道 ID: (如 UCxxxxxxxx)
+- Studio 语言: English / 中文
+- 默认可见性: unlisted / public / private
+- TTS 音色: en-US-JennyNeural
 - 公众号 AppID:
 - 公众号 AppSecret:
 - 小红书登录态: (浏览器/手机扫码)

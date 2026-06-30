@@ -82,4 +82,6 @@ try {
   process.exit(1);
 } finally {
   await session.release();
+  // 持久化 context 会占用事件循环，显式退出以免父进程 spawnSync 一直等待
+  process.exit(0);
 }
