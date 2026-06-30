@@ -2,7 +2,7 @@
 
 一条指令触发：选题采集 → 适配矩阵 → 写稿 → 润色 → 配图 → 发布
 
-支持平台：**知乎** · **小红书** · **抖音**
+支持平台：**知乎** · **小红书** · **抖音** · **YouTube** · **LinkedIn** · **TikTok**
 
 ---
 
@@ -93,7 +93,10 @@ publishing/auto-content-pipeline/
 ├── references/
 │   └── tokenware-image-generation.md     # 生图API参考
 ├── xiaohongshu-skills/                 # 小红书技能包
-├── youtube-skills/                     # YouTube 技能包
+├── youtube-skills/                     # YouTube（sau + Playwright）
+├── linkedin-skills/                    # LinkedIn（openclaw-linkedin 衍生）
+├── tiktok-skills/                      # TikTok 海外（social-auto-upload tk）
+├── tool/                               # 海外依赖 clone（gitignore）
 │   ├── SKILL.md
 │   ├── scripts/cli.mjs
 │   └── skills/yt-{auth,publish,create,pipeline}/

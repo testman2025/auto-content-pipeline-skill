@@ -1,32 +1,27 @@
-import readline from 'readline';
+import { sauAccount, runSau, sauAvailable } from '../../../scripts/lib/sau.mjs';
+import { isStudioLoggedIn } from '../lib/studio-i18n.mjs';
 import {
   acquireYouTubePage,
-  ensureStudioLoggedIn,
   navigateStudioUpload,
 } from '../lib/browser.mjs';
-import { isStudioLoggedIn } from '../lib/studio-i18n.mjs';
-
-function waitForEnter(message) {
-  return new Promise((resolve) => {
-    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-    rl.question(message, () => {
-      rl.close();
-      resolve();
-    });
-  });
-}
 
 export async function cmdCheckLogin() {
+  if (sauAvailable()) {
+    const account = sauAccount('youtube');
+    const r = runSau(['youtube', 'check', '--account', account], { silent: true });
+    const out = (r.stdout || '').trim();
+    const loggedIn = out === 'valid';
+    console.log(JSON.stringify({ ok: true, loggedIn, account, backend: 'sau' }, null, 2));
+    process.exit(loggedIn ? 0 : 1);
+  }
+
   const session = await acquireYouTubePage();
-  const { page, context } = session;
+  const { page } = session;
   try {
     await navigateStudioUpload(page);
     const loggedIn = await isStudioLoggedIn(page);
-    console.log(JSON.stringify({ ok: true, loggedIn, url: page.url() }, null, 2));
-    if (!loggedIn) {
-      process.exitCode = 1;
-    }
-    return loggedIn;
+    console.log(JSON.stringify({ ok: true, loggedIn, backend: 'playwright', url: page.url() }, null, 2));
+    process.exit(loggedIn ? 0 : 1);
   } finally {
     await session.release();
     process.exit(process.exitCode ?? 0);
@@ -34,25 +29,11 @@ export async function cmdCheckLogin() {
 }
 
 export async function cmdLogin() {
-  console.log('=== YouTube Studio 登录（单窗口，不自动关闭）===\n');
-  console.log('提示: 附着已打开的 Chrome:');
-  console.log('  chrome.exe --remote-debugging-port=9222');
-  console.log('  $env:CHROME_CDP_URL="http://127.0.0.1:9222"\n');
-
-  const session = await acquireYouTubePage();
-  const { page, context, mode } = session;
-
-  await navigateStudioUpload(page);
-  const ok = await ensureStudioLoggedIn(page, context);
-
-  if (!ok) {
-    console.error('登录失败或超时');
-    await session.release();
+  if (!sauAvailable()) {
+    console.error('请先安装 social-auto-upload，见 youtube-skills/skills/youtube-upload/references/runtime-requirements.md');
     process.exit(1);
   }
-
-  console.log(`\n✅ 登录成功（模式: ${mode}）`);
-  console.log('接下来发布: node youtube-skills/scripts/cli.mjs publish --video <路径> --title "标题"');
-  await waitForEnter('\n按 Enter 结束脚本（浏览器窗口保持打开）...');
-  await session.release();
+  const account = sauAccount('youtube');
+  console.log(`=== sau youtube login (account: ${account}) ===\n`);
+  runSau(['youtube', 'login', '--account', account]);
 }

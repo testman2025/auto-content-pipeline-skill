@@ -15,6 +15,13 @@
     "youtube:pipeline": "node youtube-skills/scripts/cli.mjs pipeline",
     "youtube:check-login": "node youtube-skills/scripts/cli.mjs check-login",
     "youtube:create-video": "node youtube-skills/scripts/cli.mjs create-video",
-    "youtube:patch-pva": "node youtube-skills/scripts/patch-pva-i18n.mjs"
+    "youtube:patch-pva": "node youtube-skills/scripts/patch-pva-i18n.mjs",
+    "linkedin:login": "node linkedin-skills/scripts/cli.mjs login",
+    "linkedin:publish": "node linkedin-skills/scripts/cli.mjs publish",
+    "linkedin:check-login": "node linkedin-skills/scripts/cli.mjs check-login",
+    "tiktok:login": "uv run python tiktok-skills/scripts/cli.py login",
+    "tiktok:publish": "uv run python tiktok-skills/scripts/cli.py publish",
+    "tiktok:check-login": "uv run python tiktok-skills/scripts/cli.py check-login",
+    "overseas:install": "powershell -ExecutionPolicy Bypass -File scripts/install-overseas-tools.ps1"
   }
 }

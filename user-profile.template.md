@@ -15,6 +15,8 @@
 - 小红书: [启用/关闭]
 - 抖音: [启用/关闭]
 - YouTube: [启用/关闭]
+- LinkedIn: [启用/关闭]
+- TikTok: [启用/关闭]
 
 ## YouTube 配置（启用时填写）
 - 频道名称:
@@ -22,6 +24,17 @@
 - Studio 语言: English / 中文
 - 默认可见性: unlisted / public / private
 - TTS 音色: en-US-JennyNeural
+- sau 账号名: default
+
+## LinkedIn 配置（启用时填写）
+- 个人主页 slug:
+- 默认语言: English / 中文
+
+## TikTok 配置（启用时填写）
+- sau 账号名: default
+- 默认标签: #fyp
+
+## 账号信息
 - 公众号 AppID:
 - 公众号 AppSecret:
 - 小红书登录态: (浏览器/手机扫码)
@@ -38,3 +51,6 @@
 - 文章: `D:/test/hermes/文章/{平台}/`
 - 图片: `D:/test/hermes/图片/{平台}/`
 - 视频: `D:/test/hermes/视频/`
+
+## 海外工具路径（可选）
+- SAU_ROOT: `tool/social-auto-upload`

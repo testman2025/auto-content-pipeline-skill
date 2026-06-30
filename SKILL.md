@@ -389,7 +389,46 @@ npx @panda-video-automation/pva douyin upload \
   --title "标题 #话题1 #话题2"
 ```
 
-### 多平台分发（可选）
+### 海外平台发布（Step 5 路由）
+
+读取 `user-profile.md` 平台开关，按启用项调用对应 skill：
+
+| 平台 | 条件 | 加载技能 | 发布命令 |
+|------|------|----------|----------|
+| **YouTube** | YouTube: 启用 | `youtube-skills` → `youtube-upload` | `node youtube-skills/scripts/cli.mjs publish --video "..." --title "..."` |
+| **LinkedIn** | LinkedIn: 启用 | `linkedin-skills` → `li-publish` | `node linkedin-skills/scripts/cli.mjs publish --file "D:/test/hermes/文章/LinkedIn/xxx.md"` |
+| **TikTok 海外** | TikTok: 启用 | `tiktok-skills` → `tt-publish` | `uv run python tiktok-skills/scripts/cli.py publish --video "..." --title "..."` |
+
+**前置安装（一次性）**：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/install-overseas-tools.ps1
+cd tool/social-auto-upload
+uv pip install -e .
+patchright install chromium
+```
+
+**YouTube** 优先 `sau youtube`（social-auto-upload）；失败时自动回退 Playwright（`YOUTUBE_PUBLISH_BACKEND=playwright` 可强制）。
+
+**LinkedIn** 基于 [openclaw-linkedin-skill](https://github.com/jarvis-survives/openclaw-linkedin-skill) 的浏览器发帖流程，本仓库提供 `linkedin-skills/scripts/cli.mjs`。
+
+**TikTok** 基于 social-auto-upload `tk_uploader`（tiktok.com），与抖音 `sau douyin` 不同。
+
+### 路由伪代码（Agent 执行 Step 5 时）
+
+```
+if user-profile.YouTube == 启用 and 存在视频:
+  加载 youtube-skills/skills/youtube-upload
+  node youtube-skills/scripts/cli.mjs publish ...
+
+if user-profile.LinkedIn == 启用 and 存在 LinkedIn 文稿:
+  加载 linkedin-skills/skills/li-publish
+  node linkedin-skills/scripts/cli.mjs publish --file ...
+
+if user-profile.TikTok == 启用 and 存在竖版/海外视频:
+  加载 tiktok-skills/skills/tt-publish
+  uv run python tiktok-skills/scripts/cli.py publish ...
+```
 
 加载 **multi-platform-publisher** skill，将一篇源内容自动改写N版本并分发到多个平台。
 
@@ -404,6 +443,9 @@ npx @panda-video-automation/pva douyin upload \
 | 小红书 | ✅ 已发布 | ... |
 | 知乎 | ✅ 已发布 | ... |
 | 抖音 | ⏳ 需手动发布 | ... |
+| YouTube | ✅/❌ | sau / Playwright |
+| LinkedIn | ✅/❌ | 文本帖 |
+| TikTok | ✅/❌ | tk_uploader |
 ```
 
 ---

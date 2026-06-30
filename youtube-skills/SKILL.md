@@ -38,18 +38,19 @@ metadata:
 
 按优先级路由：
 
-1. **认证**（登录 / 检查登录）→ `yt-auth`
+1. **认证**（登录 / 检查登录）→ `yt-auth` / `youtube-upload`
 2. **仅创作视频**（TTS / 合成 MP4，不发布）→ `yt-create`
-3. **发布已有视频**（上传 + 填信息 + 发布）→ `yt-publish`
+3. **发布已有视频**（**优先 sau youtube**，失败回退 Playwright）→ `yt-publish` / `youtube-upload`
 4. **全流程**（用户画像 → 写稿 → 创作 → 发布）→ `yt-pipeline`
 
 ## 子技能概览
 
 | 子技能 | 命令 | 功能 |
 |--------|------|------|
-| yt-auth | `check-login` / `login` | Studio 登录态管理 |
+| yt-auth | `check-login` / `login` | Studio 登录（sau 优先） |
+| **youtube-upload** | `sau youtube ...` | social-auto-upload 官方契约 |
 | yt-create | `create-video` | Edge TTS + ffmpeg 合成 16:9 |
-| yt-publish | `publish` | Studio 单标签上传发布 |
+| yt-publish | `publish` | sau → Playwright 回退 |
 | yt-pipeline | `pipeline` | 读取 user-profile.md 一条龙 |
 
 ## 快速开始

@@ -74,9 +74,10 @@ auto-content-pipeline-skill/
 ├── scripts/                 # 安装与依赖检查
 ├── xiaohongshu-skills/      # 小红书自动化（内置）
 └── youtube-skills/          # YouTube 自动化（内置）
-    ├── SKILL.md             # 技能路由
-    ├── scripts/cli.mjs      # 统一 CLI
-    └── skills/              # yt-auth / yt-publish / yt-create / yt-pipeline
+    ├── skills/youtube-upload/  # sau 契约（social-auto-upload）
+    └── skills/yt-{auth,publish,create,pipeline}/
+├── linkedin-skills/         # LinkedIn（jarvis-survives/openclaw-linkedin-skill）
+└── tiktok-skills/           # TikTok 海外（social-auto-upload tk_uploader）
 ```
 
 ## 常用命令
