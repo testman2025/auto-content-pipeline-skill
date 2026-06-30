@@ -413,7 +413,7 @@ patchright install chromium
 
 **YouTube** 优先 `sau youtube`（social-auto-upload）；失败时自动回退 Playwright（`YOUTUBE_PUBLISH_BACKEND=playwright` 可强制）。
 
-**LinkedIn** 基于 [openclaw-linkedin-skill](https://github.com/jarvis-survives/openclaw-linkedin-skill) 的浏览器发帖流程，本仓库提供 `linkedin-skills/scripts/cli.mjs`。
+**LinkedIn** 基于 [openclaw-linkedin-skill](https://github.com/jarvis-survives/openclaw-linkedin-skill) 的浏览器发帖流程，本仓库 `linkedin-skills/scripts/cli.mjs` 使用 **系统 Chrome**（`channel: chrome`），避免 Playwright Chromium 触发「浏览器不安全」拦截。
 
 **TikTok** 基于 social-auto-upload `tk_uploader`（tiktok.com），与抖音 `sau douyin` 不同。
 

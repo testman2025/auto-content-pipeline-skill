@@ -10,7 +10,18 @@ metadata:
 
 # LinkedIn Skills
 
-LinkedIn 无个人发帖 API，使用 Playwright 浏览器自动化（与 openclaw-linkedin-skill 思路一致）。
+LinkedIn 无个人发帖 API，使用 **系统 Chrome** + Playwright 持久化配置（避免 Playwright 自带 Chromium 被 LinkedIn 判定为「不安全浏览器」）。
+
+## 登录说明
+
+若出现 `This browser or app may not be secure`：
+
+1. 先关闭所有 LinkedIn 相关浏览器窗口
+2. 执行 `npm run linkedin:login`（默认用系统 Chrome 打开登录页）
+3. 在 **Chrome** 中完成登录，不要用 Playwright Chromium 窗口
+4. 配置目录：`%APPDATA%\auto-content-pipeline\linkedin-chrome-profile`
+
+可选：附着已登录的 Chrome — 启动 `chrome.exe --remote-debugging-port=9222` 后设置 `LINKEDIN_CDP_URL=http://127.0.0.1:9222`
 
 ## 技能边界
 
