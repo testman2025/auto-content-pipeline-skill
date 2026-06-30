@@ -64,6 +64,18 @@ hermes -s auto-content-pipeline -q "帮我跑一篇内容，话题：TK小店选
 
 生图走 tokenware.ai `gpt-image-2` 模型，无需额外配置。FAL 账号余额已耗尽，不要尝试。
 
+### 6. YouTube 发布
+
+> **不要用 `pva youtube login`**：Playwright 测试结束后会**自动关闭浏览器**；且只认中文「频道信息中心」，英文 Studio 会验证失败。
+
+```bash
+# 登录（浏览器保持打开，登录成功后再按 Enter 关闭）
+npm run youtube:login
+
+# 上传（默认不公开列出）
+node scripts/youtube-upload.mjs "D:/test/hermes/视频/xxx.mp4" "视频标题"
+```
+
 ---
 
 ## 文件结构
@@ -98,4 +110,5 @@ publishing/auto-content-pipeline/
 - 小红书标题限 **20字**
 - 首次抖音需 **扫码登录**（一次后永久保存）
 - 小红书/抖音依赖本地浏览器，不适合纯服务器环境
+- **YouTube**：用 `npm run youtube:login`，不要用 `pva youtube login`（会自动关浏览器）
 - pyzhihu-cli 走知乎内部 API，非官方接口

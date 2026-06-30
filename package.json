@@ -7,6 +7,10 @@
   },
   "scripts": {
     "check": "bash scripts/check-deps.sh",
-    "setup": "bash scripts/install-deps.sh"
+    "setup": "bash scripts/install-deps.sh",
+    "postinstall": "node scripts/patch-pva-youtube-i18n.mjs",
+    "youtube:login": "node scripts/youtube-login.mjs",
+    "youtube:upload": "node scripts/youtube-upload.mjs",
+    "youtube:patch-pva": "node scripts/patch-pva-youtube-i18n.mjs"
   }
 }

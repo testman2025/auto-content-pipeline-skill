@@ -26,6 +26,9 @@ Thumbs.db
 # 可选本地 ffmpeg 二进制（体积大，不纳入版本库）
 bin/
 
+# Playwright 本地配置与浏览器 profile（含登录态）
+playwright/.profile/
+
 # 小红书运行时数据
 xiaohongshu-skills/config/
 xiaohongshu-skills/tmp/
