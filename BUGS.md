@@ -16,7 +16,20 @@
 
 ---
 
-## 2026-06-30 — X / LinkedIn 账号封禁（平台风控）
+## 2026-06-30 — skills/ + tool/ 目录重构后脚本路径错误
+
+**现象**：`git mv` 将 `*-skills/` 迁入 `skills/` 后，部分 CLI 仍引用旧路径；`skills/x/scripts/cli.mjs` 与 `skills/youtube/scripts/commands/*.mjs` 的 `import` 层级少一层，导致找不到 `scripts/lib/`。
+
+**修复**：
+- 批量将文档与 SKILL 内路径改为 `skills/<platform>/`
+- `skills/image`、`skills/tiktok` 的 `repo_root()` 改为 `parents[3]`
+- `skills/youtube/scripts/lib/paths.mjs` 的 `repoRoot` 改为 `join(skillRoot, '../..')`
+- x / youtube commands 的 import 改为 `../../../` / `../../../../scripts/lib/`
+- `.gitignore` 与 `register-skills.ps1` 对齐新结构
+
+**验证**：`npm run image:check-key`、`npm run check`
+
+---
 
 **现象**：测试自动发帖流程后，X 与 LinkedIn 账号被平台封禁。
 

@@ -28,18 +28,16 @@ bin/
 
 # Playwright 本地配置与浏览器 profile（含登录态）
 playwright/.profile/
-youtube-skills/playwright/.profile/
-linkedin-skills/playwright/.profile/
+skills/youtube/playwright/.profile/
+skills/linkedin/playwright/.profile/
 
 # 海外工具（clone 后本地存在，不提交）
-tool/social-auto-upload/
-tool/openclaw-linkedin-skill/
-tool/baoyu-skills/
+tool/
 
 # 小红书运行时数据
-xiaohongshu-skills/config/
-xiaohongshu-skills/tmp/
-xiaohongshu-skills/.venv/
+skills/xiaohongshu/config/
+skills/xiaohongshu/tmp/
+skills/xiaohongshu/.venv/
 
 # 测试草稿（发布用临时文本）
 title.txt

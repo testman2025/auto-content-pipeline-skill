@@ -2,108 +2,93 @@
 
 国内社媒运营全自动流水线 Hermes Skill：选题采集 → 适配矩阵 → 写稿 → 润色 → 配图 → 多平台发布。
 
-支持平台：**知乎** · **小红书** · **抖音** · **公众号** · **YouTube**
+支持平台：**知乎** · **小红书** · **抖音（PVA）** · **公众号（baoyu + 微信官方 API）** · **YouTube**
 
-## 快速开始
+## 平台发布方案（固定）
 
-### 1. 克隆仓库
+| 平台 | 方案 |
+|------|------|
+| 公众号 | baoyu-post-to-wechat + **微信官方 AppID/Secret** |
+| 抖音 | **PVA**（`@panda-video-automation/pva`） |
+
+## 快速开始（Windows 推荐）
+
+```powershell
+git clone git@github.com:testman2025/auto-content-pipeline-skill.git
+cd auto-content-pipeline-skill
+npm run setup:win
+```
+
+`setup:win` 会自动：npm 依赖、Python 依赖、baoyu 公众号技能、复制到 Hermes。
+
+## 快速开始（Git Bash / Linux）
 
 ```bash
 git clone git@github.com:testman2025/auto-content-pipeline-skill.git
 cd auto-content-pipeline-skill
+npm run setup
 ```
 
-### 2. 安装依赖
-
-```bash
-# Python（知乎发布）
-uv pip install -r requirements.txt
-zhihu login --qrcode
-
-# Node（抖音发布）
-npm install
-npx @panda-video-automation/pva douyin login
-
-# 小红书（仓库已内置 xiaohongshu-skills）
-cd xiaohongshu-skills
-uv sync
-# Chrome → chrome://extensions/ → 加载 xiaohongshu-skills/extension/
-```
-
-### 3. 配置 API Key
-
-复制模板并在本地 Hermes 环境中配置（**不要提交 `.env`**）：
+### 一次性配置
 
 ```bash
 hermes config env-path   # 查看 .env 路径
-# 写入 OPENAI_API_KEY（tokenware 生图）
 ```
 
-### 4. 安装到 Hermes
+在 Hermes `.env` 写入：
 
-```bash
-mkdir -p ~/.hermes/skills/publishing
-cp -r . ~/.hermes/skills/publishing/auto-content-pipeline
+- `OPENAI_API_KEY` — tokenware 生图
+- `WECHAT_APP_ID` / `WECHAT_APP_SECRET` — 公众号官方 API
+- mp.weixin.qq.com → IP 白名单（本地 IP 或服务器 IP）
+
+```powershell
+zhihu login --qrcode
+npm run douyin:login
+# Chrome → chrome://extensions/ → 加载 skills/xiaohongshu/extension/
 ```
 
-或：
-
-```bash
-hermes skills install ./SKILL.md
-```
-
-### 5. 首次运行（会创建 user-profile）
+### 运行
 
 ```bash
 hermes -s auto-content-pipeline -q "帮我跑一篇内容，话题：TK小店选品方法"
-```
-
-首次运行会引导填写 `user-profile.md`（该文件已加入 `.gitignore`，仅存本地）。
-
-## 目录结构
-
-```
-auto-content-pipeline-skill/
-├── SKILL.md                 # 主技能文件
-├── DEPLOYMENT.md            # 部署说明
-├── README.md                # 本文件
-├── user-profile.template.md # 用户画像模板
-├── package.json             # PVA 等 Node 依赖
-├── requirements.txt         # pyzhihu-cli
-├── references/              # API 参考文档
-├── scripts/                 # 安装与依赖检查
-├── xiaohongshu-skills/      # 小红书自动化（内置）
-└── youtube-skills/          # YouTube 自动化（内置）
-    ├── skills/youtube-upload/  # sau 契约（social-auto-upload）
-    └── skills/yt-{auth,publish,create,pipeline}/
-├── linkedin-skills/         # LinkedIn（jarvis-survives/openclaw-linkedin-skill）
-├── tiktok-skills/           # TikTok 海外（social-auto-upload tk_uploader）
-└── x-skills/                # X/Twitter（baoyu-post-to-x CDP）
 ```
 
 ## 常用命令
 
 | 指令 | 效果 |
 |------|------|
+| `npm run setup:win` | Windows 一键安装 |
+| `npm run tool:install` | clone tool/ 第三方依赖（baoyu、sau 等） |
+| `npm run skills:register` | 注册 skills/ 与 baoyu 到 Hermes |
+| `npm run wechat:install` | tool:install + skills:register（兼容旧名） |
+| `npm run douyin:login` | 抖音 PVA 扫码登录 |
+| `npm run image:check-key` | 检查 tokenware 生图 Key |
+| `npm run image:generate -- --platform zhihu --prompt "..." --out "..."` | 生成配图 |
 | `hermes -s auto-content-pipeline "今天有什么热点？"` | 选题 → 矩阵 → 确认后全自动 |
-| `hermes -s auto-content-pipeline "只做选题采集"` | 仅输出选题清单 |
-| `bash scripts/check-deps.sh` | 检查依赖与登录态 |
-| `node youtube-skills/scripts/cli.mjs pipeline` | YouTube 全流程 |
-| `npm run youtube:publish -- --video "..." --title "..."` | YouTube 发布快捷方式 |
-| `npm run x:login` | X/Twitter 登录（Chrome CDP profile） |
-| `npm run x:publish -- --text "..."` | X 常规帖填稿 |
 
-## 关联技能
+## 目录结构
 
-本流水线会按需加载 Hermes 生态中的其他技能，例如：
-
-- `hotspot-monitor` — 热点采集
-- `wechat-article-writer` — 写稿
-- `humanizer-zh` — 去 AI 味
-- `publishing-zhihu` / `publishing-douyin` / `baoyu-post-to-wechat`
+```
+auto-content-pipeline-skill/
+├── SKILL.md                       # 主编排技能
+├── skills/                        # 内置技能包（进 Git）
+│   ├── xiaohongshu/
+│   ├── youtube/
+│   ├── linkedin/
+│   ├── tiktok/
+│   ├── x/
+│   ├── image/                     # tokenware-image 生图
+│   └── README.md
+├── tool/                          # 安装时 clone（gitignore）
+│   ├── baoyu-skills/              # 公众号 + X
+│   ├── social-auto-upload/
+│   └── openclaw-linkedin-skill/
+└── scripts/
+    ├── setup.ps1                  # Windows 一键安装
+    ├── install-tool-deps.ps1      # clone tool/ 依赖
+    └── register-skills.ps1        # 注册到 ~/.hermes/skills/publishing/
+```
 
 ## 许可
 
 MIT License — 见 [LICENSE](LICENSE)
-
-小红书子模块基于 [xiaohongshu-skills](https://github.com/xpzouying/xiaohongshu-skills) 上游项目。

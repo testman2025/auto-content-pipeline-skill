@@ -2,108 +2,109 @@
 
 一条指令触发：选题采集 → 适配矩阵 → 写稿 → 润色 → 配图 → 发布
 
-支持平台：**知乎** · **小红书** · **抖音** · **YouTube** · **LinkedIn** · **TikTok** · **X (Twitter)**
+支持平台：**知乎** · **小红书** · **抖音（PVA）** · **公众号（baoyu 官方 API）** · **YouTube** · **LinkedIn** · **TikTok** · **X**
 
 ---
 
-## 快速部署（5步）
+## 平台发布方案（固定，勿混用）
 
-### 1. 安装外部依赖
+| 平台 | 方案 | 用户配置 |
+|------|------|----------|
+| **公众号** | baoyu-post-to-wechat + 微信官方 API | `WECHAT_APP_ID` / `WECHAT_APP_SECRET` + IP 白名单 |
+| **抖音** | PVA | `npm run douyin:login` 扫码一次 |
 
-```bash
-# 知乎发布
-uv pip install pyzhihu-cli
-zhihu login --qrcode
+不使用 wx.limyai、douyin-publish（MCP）等替代路径。
 
-# 小红书发布
-cd /d/tools
-git clone https://github.com/autoclaw-cc/xiaohongshu-skills.git
-# Chrome → chrome://extensions/ → 加载扩展 → xiaohongshu-skills/extension/
+---
 
-# 抖音发布
-npm i -g @panda-video-automation/pva
-npx @panda-video-automation/pva douyin login
+## 快速部署（3 步）
 
-# 短视频合成（FFmpeg）
-# https://ffmpeg.org/download.html 下载，加到 PATH
-```
+### 1. 一键安装
 
-### 2. 配置 API Key
+**Windows（推荐）：**
 
-注册 https://www.tokenware.ai → 获取 API Key
-
-编辑 Hermes `.env`（`hermes config env-path` 查看路径），确保有：
-```
-OPENAI_API_KEY=你的tokenware_API_Key
-```
-
-### 3. 安装技能
-
-```bash
-# 方式A：克隆 GitHub 仓库
+```powershell
 git clone git@github.com:testman2025/auto-content-pipeline-skill.git
 cd auto-content-pipeline-skill
-
-# 方式B：安装到 Hermes
-mkdir -p ~/.hermes/skills/publishing
-cp -r . ~/.hermes/skills/publishing/auto-content-pipeline
-
-# 方式C：从 SKILL.md 安装
-hermes skills install ./SKILL.md
+npm run setup:win
 ```
 
-### 4. 首次运行
+**Git Bash：**
+
+```bash
+npm run setup
+```
+
+安装内容：npm（含 PVA）、pyzhihu-cli、skills/xiaohongshu、baoyu 公众号技能、主技能复制到 `~/.hermes/skills/publishing/`。
+
+### 2. 配置 Hermes `.env`
+
+```bash
+hermes config env-path
+```
+
+```
+OPENAI_API_KEY=你的tokenware_Key
+WECHAT_APP_ID=公众号AppID
+WECHAT_APP_SECRET=公众号AppSecret
+```
+
+微信公众平台 → 设置 → IP 白名单：加入本机或服务器公网 IP。
+
+### 3. 首次登录（各平台一次）
+
+```powershell
+zhihu login --qrcode
+npm run douyin:login
+# Chrome 加载 skills/xiaohongshu/extension/
+```
+
+### 4. 运行
 
 ```bash
 hermes -s auto-content-pipeline -q "帮我跑一篇内容，话题：TK小店选品方法"
 ```
 
-首次运行时会收集一次用户画像，后续不再询问。
+---
 
-### 5. 配图已内置
+## 公众号发布流程（baoyu）
 
-生图走 tokenware.ai `gpt-image-2` 模型，无需额外配置。FAL 账号余额已耗尽，不要尝试。
+1. `npm run wechat:install` — sparse-clone `JimLiu/baoyu-skills`（markdown-to-html + post-to-wechat）
+2. Step 4：`baoyu-markdown-to-html` 转 HTML
+3. Step 5：`bun scripts/wechat-api.ts article.md --title "..." --cover cover.jpg`
+4. 草稿箱预览 → 人工群发
 
-### 6. YouTube 发布（youtube-skills）
+本地 IP 不在微信白名单时，使用 baoyu 技能内的 **remote-api**（SSH 隧道），见 `tool/baoyu-skills/skills/baoyu-post-to-wechat/SKILL.md`。
+
+---
+
+## 抖音发布流程（PVA）
 
 ```powershell
-npm install
-node youtube-skills/scripts/cli.mjs check-login
-node youtube-skills/scripts/cli.mjs login
-
-# 发布
-$env:CHROME_CDP_URL = "http://127.0.0.1:9222"
-node youtube-skills/scripts/cli.mjs publish --video "D:/test/hermes/视频/xxx.mp4" --title "标题"
-
-# 全流程（需 user-profile.md）
-node youtube-skills/scripts/cli.mjs pipeline
+npm run douyin:login
+npx @panda-video-automation/pva douyin upload --video "D:/test/hermes/视频/xxx.mp4" --title "标题 #话题"
 ```
-
-详见 `youtube-skills/references/publishing.md`
 
 ---
 
 ## 文件结构
 
 ```
-publishing/auto-content-pipeline/
-├── SKILL.md                              # 主技能文件（Hermes加载这个）
-├── DEPLOYMENT.md                         # 本文——部署指南
-├── user-profile.template.md              # 用户画像模板
-├── references/
-│   └── tokenware-image-generation.md     # 生图API参考
-├── xiaohongshu-skills/                 # 小红书技能包
-├── youtube-skills/                     # YouTube（sau + Playwright）
-├── linkedin-skills/                    # LinkedIn（openclaw-linkedin 衍生）
-├── tiktok-skills/                      # TikTok 海外（social-auto-upload tk）
-├── x-skills/                           # X/Twitter（baoyu-post-to-x 封装）
-├── tool/                               # 海外依赖 clone（gitignore）
-│   ├── social-auto-upload/
-│   ├── openclaw-linkedin-skill/
-│   └── baoyu-skills/                   # sparse: baoyu-post-to-x
+auto-content-pipeline-skill/
+├── SKILL.md
+├── skills/                      # 内置技能（进 Git）
+│   ├── xiaohongshu/
+│   ├── youtube/
+│   ├── linkedin/
+│   ├── tiktok/
+│   ├── x/
+│   └── image/
+├── tool/                        # 安装时 clone（gitignore）
+│   └── baoyu-skills/            # wechat + x
 └── scripts/
-    ├── check-deps.sh                     # 依赖检查脚本
-    └── install-deps.sh                   # 一键安装脚本
+    ├── setup.ps1
+    ├── install-tool-deps.ps1
+    └── register-skills.ps1
 ```
 
 ---
@@ -112,17 +113,17 @@ publishing/auto-content-pipeline/
 
 | 指令 | 效果 |
 |------|------|
-| `hermes -s auto-content-pipeline "今天有什么热点？"` | 选题采集 → 矩阵 → 等你确认后全自动 |
-| `hermes -s auto-content-pipeline "帮我把这话题发知乎"` | 直接写+发 |
-| `hermes -s auto-content-pipeline "只做选题采集"` | 只出选题清单，不发 |
-| `hermes -s auto-content-pipeline "帮我把这篇MD发布到小红书"` | 读本地MD→配图→发布 |
+| `hermes -s auto-content-pipeline "今天有什么热点？"` | 选题 → 矩阵 → 确认后全自动 |
+| `npm run check` | 依赖与 WECHAT_* / PVA 检查 |
+| `npm run tool:install` | clone tool/ 依赖 |
+| `npm run skills:register` | 注册 Hermes 技能 |
+| `npm run wechat:install` | tool:install + skills:register |
 
 ---
 
 ## 限制
 
 - 小红书标题限 **20字**
-- 首次抖音需 **扫码登录**（一次后永久保存）
-- 小红书/抖音依赖本地浏览器，不适合纯服务器环境
-- **YouTube**：用 `npm run youtube:login`，不要用 `pva youtube login`（会自动关浏览器）
-- pyzhihu-cli 走知乎内部 API，非官方接口
+- 公众号 API 需 **IP 白名单**
+- 抖音/小红书依赖本地 Chrome
+- 配图走 tokenware `gpt-image-2`（`tokenware-image` 技能）

@@ -43,11 +43,12 @@
 - Chrome profile: `%APPDATA%\baoyu-skills\chrome-profile`（Windows）
 
 ## 账号信息
-- 公众号 AppID:
-- 公众号 AppSecret:
+- 公众号 AppID: （微信公众平台 → 开发 → 基本配置）
+- 公众号 AppSecret: （同上，写入 Hermes .env 的 WECHAT_APP_ID / WECHAT_APP_SECRET）
+- 公众号发布方式: baoyu-post-to-wechat API（固定；IP 白名单见 mp.weixin.qq.com）
 - 小红书登录态: (浏览器/手机扫码)
 - 知乎 CLI 状态: (已验证/未配置)
-- 抖音 PVA 状态: (已登录/未配置)
+- 抖音 PVA 状态: (已登录/未配置) — `npm run douyin:login`
 
 ## API Key（仅记录是否已配置，勿写明文密钥）
 - DashScope/通义万相: [已配置/未配置]

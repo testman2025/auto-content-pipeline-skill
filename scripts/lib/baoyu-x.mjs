@@ -1,9 +1,7 @@
 import { existsSync } from 'fs';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import { join } from 'path';
 import { spawnSync } from 'child_process';
-
-const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '../..');
+import { repoRoot } from './repo-paths.mjs';
 
 export const baoyuSkillRoot =
   process.env.BAOYU_X_SKILL_ROOT ||
