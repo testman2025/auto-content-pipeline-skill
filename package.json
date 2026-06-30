@@ -8,11 +8,13 @@
   "scripts": {
     "check": "bash scripts/check-deps.sh",
     "setup": "bash scripts/install-deps.sh",
-    "postinstall": "node scripts/patch-pva-youtube-i18n.mjs",
-    "youtube:login": "node scripts/youtube-login.mjs",
-    "youtube:publish": "node scripts/youtube-publish.mjs",
-    "youtube:upload": "node scripts/youtube-publish.mjs",
-    "youtube:pipeline": "node scripts/run-youtube-pipeline.mjs",
-    "youtube:patch-pva": "node scripts/patch-pva-youtube-i18n.mjs"
+    "postinstall": "node youtube-skills/scripts/patch-pva-i18n.mjs",
+    "youtube:login": "node youtube-skills/scripts/cli.mjs login",
+    "youtube:publish": "node youtube-skills/scripts/cli.mjs publish",
+    "youtube:upload": "node youtube-skills/scripts/cli.mjs publish",
+    "youtube:pipeline": "node youtube-skills/scripts/cli.mjs pipeline",
+    "youtube:check-login": "node youtube-skills/scripts/cli.mjs check-login",
+    "youtube:create-video": "node youtube-skills/scripts/cli.mjs create-video",
+    "youtube:patch-pva": "node youtube-skills/scripts/patch-pva-i18n.mjs"
   }
 }

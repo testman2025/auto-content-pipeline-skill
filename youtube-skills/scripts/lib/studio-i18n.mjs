@@ -115,7 +115,7 @@ export async function uploadViaStudioPage(page, videoPath) {
   await dismissStudioPopups(page);
 
   if (await page.locator('text=Sign in').first().isVisible().catch(() => false)) {
-    throw new Error('未登录，请运行 npm run youtube:login');
+    throw new Error('未登录，请运行: node youtube-skills/scripts/cli.mjs login');
   }
 
   const titleVisible = await page
@@ -143,19 +143,12 @@ export async function uploadViaStudioPage(page, videoPath) {
     await fileInput.setInputFiles(videoPath);
   }
 
-  // 选文件后才出现 Title 输入框
   const titleBox = page.getByRole('textbox', { name: /title/i }).first();
   await titleBox.waitFor({ state: 'visible', timeout: 180000 });
   await page.waitForTimeout(2000);
 }
 
-/** @deprecated 使用 uploadViaStudioPage */
-export async function uploadViaDirectPage(page, videoPath) {
-  return uploadViaStudioPage(page, videoPath);
-}
-
 export async function completeUploadWizard(page, { privacy = 'unlisted' } = {}) {
-  // 等待小视频处理完成（大文件需更久）
   console.log('等待视频处理...');
   for (let i = 0; i < 24; i++) {
     const publishReady = page.getByRole('button', { name: /^(Publish|Schedule|发布|预定)$/ });
@@ -175,7 +168,6 @@ export async function completeUploadWizard(page, { privacy = 'unlisted' } = {}) 
     await page.waitForTimeout(500);
   }
 
-  // 逐步点 Next，直到出现 Publish/Schedule
   for (let step = 0; step < 8; step++) {
     const publishBtn = page.getByRole('button', { name: /^(Publish|Schedule|发布|预定)$/ });
     if (await publishBtn.isVisible().catch(() => false)) {

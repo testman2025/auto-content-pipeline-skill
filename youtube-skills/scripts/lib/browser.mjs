@@ -1,23 +1,11 @@
 /**
  * 复用已打开的浏览器标签，避免每次新开 Playwright 窗口。
- *
- * 优先级：
- * 1. CHROME_CDP_URL — 附着到你已打开的 Chrome（需 --remote-debugging-port=9222）
- * 2. playwright/.profile/youtube — 持久化 Chromium（登录后保持同一窗口）
- * 3. auth 文件 — 兜底（会新开窗口，不推荐）
  */
 import { chromium } from 'playwright';
 import { existsSync, mkdirSync } from 'fs';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
-import { isStudioLoggedIn } from './youtube-studio-i18n.mjs';
-
-const rootDir = join(dirname(fileURLToPath(import.meta.url)), '../..');
-const authFile = join(
-  rootDir,
-  'node_modules/@panda-video-automation/pva/playwright/.auth/youtube.json'
-);
-const profileDir = join(rootDir, 'playwright/.profile/youtube');
+import { dirname } from 'path';
+import { isStudioLoggedIn } from './studio-i18n.mjs';
+import { authFile, profileDir, skillRoot } from './paths.mjs';
 
 const STUDIO_URL_RE = /studio\.youtube\.com|youtube\.com\/upload/;
 
@@ -48,9 +36,7 @@ export async function acquireYouTubePage() {
       browser,
       context,
       page,
-      async release() {
-        /* 不关闭用户自己的 Chrome */
-      },
+      async release() {},
     };
   }
 
@@ -70,16 +56,16 @@ export async function acquireYouTubePage() {
       browser: null,
       context,
       page,
-      async release() {
-        /* 保持窗口打开，供下次继续操作 */
-      },
+      async release() {},
     };
   } catch (err) {
     console.log(`持久化浏览器被占用，尝试 auth 文件: ${String(err.message).slice(0, 100)}`);
   }
 
   if (!existsSync(authFile)) {
-    throw new Error('无可用浏览器会话。请先: npm run youtube:login\n或启动 Chrome: chrome.exe --remote-debugging-port=9222');
+    throw new Error(
+      '无可用浏览器会话。请先: node youtube-skills/scripts/cli.mjs login\n或启动 Chrome: chrome.exe --remote-debugging-port=9222'
+    );
   }
 
   const browser = await chromium.launch({
@@ -92,7 +78,7 @@ export async function acquireYouTubePage() {
     locale: 'en-US',
   });
   const page = await context.newPage();
-  console.log('⚠️ 使用 auth 文件（会新开窗口）。建议用 CDP 或先 youtube:login 保持 profile 窗口');
+  console.log('⚠️ 使用 auth 文件（会新开窗口）。建议用 CDP 或先 login 保持 profile 窗口');
   return {
     mode: 'auth-fallback',
     browser,

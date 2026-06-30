@@ -64,19 +64,22 @@ hermes -s auto-content-pipeline -q "帮我跑一篇内容，话题：TK小店选
 
 生图走 tokenware.ai `gpt-image-2` 模型，无需额外配置。FAL 账号余额已耗尽，不要尝试。
 
-### 6. YouTube 发布（单标签完整流程）
+### 6. YouTube 发布（youtube-skills）
 
-```bash
-# 推荐：附着到已打开的 Chrome（不新开窗口）
+```powershell
+npm install
+node youtube-skills/scripts/cli.mjs check-login
+node youtube-skills/scripts/cli.mjs login
+
+# 发布
 $env:CHROME_CDP_URL = "http://127.0.0.1:9222"
-npm run youtube:publish -- "D:/test/hermes/视频/xxx.mp4" "标题"
+node youtube-skills/scripts/cli.mjs publish --video "D:/test/hermes/视频/xxx.mp4" --title "标题"
 
-# 或使用持久化 Playwright 窗口（login 一次，以后同一窗口）
-npm run youtube:login
-npm run youtube:publish -- "D:/test/hermes/视频/xxx.mp4" "标题"
+# 全流程（需 user-profile.md）
+node youtube-skills/scripts/cli.mjs pipeline
 ```
 
-详见 `references/youtube-publishing.md`
+详见 `youtube-skills/references/publishing.md`
 
 ---
 
@@ -89,9 +92,14 @@ publishing/auto-content-pipeline/
 ├── user-profile.template.md              # 用户画像模板
 ├── references/
 │   └── tokenware-image-generation.md     # 生图API参考
+├── xiaohongshu-skills/                 # 小红书技能包
+├── youtube-skills/                     # YouTube 技能包
+│   ├── SKILL.md
+│   ├── scripts/cli.mjs
+│   └── skills/yt-{auth,publish,create,pipeline}/
 └── scripts/
     ├── check-deps.sh                     # 依赖检查脚本
-    └── setup.sh                          # 一键安装脚本
+    └── install-deps.sh                   # 一键安装脚本
 ```
 
 ---

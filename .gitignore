@@ -28,6 +28,7 @@ bin/
 
 # Playwright 本地配置与浏览器 profile（含登录态）
 playwright/.profile/
+youtube-skills/playwright/.profile/
 
 # 小红书运行时数据
 xiaohongshu-skills/config/

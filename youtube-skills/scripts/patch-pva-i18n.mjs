@@ -4,9 +4,9 @@
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import { repoRoot } from './lib/paths.mjs';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const pvaDir = join(root, 'node_modules/@panda-video-automation/pva/dist/automations/YouTube');
+const pvaDir = join(repoRoot, 'node_modules/@panda-video-automation/pva/dist/automations/YouTube');
 
 const files = {
   login: join(pvaDir, 'login-youtube.spec.js'),
@@ -90,7 +90,6 @@ const step8Legacy = uploadJs.indexOf('// Step 8: Set privacy/visibility');
 if (step8Legacy !== -1) {
   uploadJs = uploadJs.slice(0, step8Legacy) + WIZARD_PATCH;
 } else if (step8Start !== -1 && !uploadJs.includes('Finishing upload wizard')) {
-  const end = uploadJs.lastIndexOf('});');
   uploadJs = uploadJs.slice(0, step8Start) + WIZARD_PATCH;
 }
 

@@ -2,7 +2,7 @@
 
 国内社媒运营全自动流水线 Hermes Skill：选题采集 → 适配矩阵 → 写稿 → 润色 → 配图 → 多平台发布。
 
-支持平台：**知乎** · **小红书** · **抖音** · **公众号**（依赖对应子技能与本地工具）
+支持平台：**知乎** · **小红书** · **抖音** · **公众号** · **YouTube**
 
 ## 快速开始
 
@@ -72,7 +72,11 @@ auto-content-pipeline-skill/
 ├── requirements.txt         # pyzhihu-cli
 ├── references/              # API 参考文档
 ├── scripts/                 # 安装与依赖检查
-└── xiaohongshu-skills/      # 小红书自动化（内置）
+├── xiaohongshu-skills/      # 小红书自动化（内置）
+└── youtube-skills/          # YouTube 自动化（内置）
+    ├── SKILL.md             # 技能路由
+    ├── scripts/cli.mjs      # 统一 CLI
+    └── skills/              # yt-auth / yt-publish / yt-create / yt-pipeline
 ```
 
 ## 常用命令
@@ -82,6 +86,8 @@ auto-content-pipeline-skill/
 | `hermes -s auto-content-pipeline "今天有什么热点？"` | 选题 → 矩阵 → 确认后全自动 |
 | `hermes -s auto-content-pipeline "只做选题采集"` | 仅输出选题清单 |
 | `bash scripts/check-deps.sh` | 检查依赖与登录态 |
+| `node youtube-skills/scripts/cli.mjs pipeline` | YouTube 全流程 |
+| `npm run youtube:publish -- --video "..." --title "..."` | YouTube 发布快捷方式 |
 
 ## 关联技能
 
