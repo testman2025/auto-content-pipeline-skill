@@ -29,8 +29,8 @@ check ffmpeg
 
 echo ""
 echo "--- Python 工具 ---"
-if python -c "import pyzhihu" 2>/dev/null; then
-  echo -e "${GREEN}✅ pyzhihu-cli${NC}"; pass=$((pass+1))
+if command -v zhihu &>/dev/null && zhihu --help &>/dev/null 2>&1; then
+  echo -e "${GREEN}✅ pyzhihu-cli (zhihu)${NC}"; pass=$((pass+1))
 else
   echo -e "${RED}❌ pyzhihu-cli — 未安装 (uv pip install pyzhihu-cli)${NC}"; fail=$((fail+1))
 fi
@@ -38,7 +38,7 @@ fi
 echo ""
 echo "--- Node 工具 ---"
 check node
-if npx @panda-video-automation/pva --version &>/dev/null 2>&1; then
+if npx --yes @panda-video-automation/pva &>/dev/null 2>&1; then
   echo -e "${GREEN}✅ @panda-video-automation/pva${NC}"; pass=$((pass+1))
 else
   echo -e "${RED}❌ @panda-video-automation/pva — 未安装 (npm install)${NC}"; fail=$((fail+1))
