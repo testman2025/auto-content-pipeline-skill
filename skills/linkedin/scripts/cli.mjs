@@ -11,6 +11,18 @@ import {
   runLinkedInCli,
 } from '../../../scripts/lib/linkedin-cli.mjs';
 
+/** 默认关闭；防 Agent 连跑触发封号。人工确认: LINKEDIN_ALLOW_AUTOMATION=true */
+function requireAutomationConsent() {
+  if (process.env.LINKEDIN_ALLOW_AUTOMATION === 'true') {
+    return;
+  }
+  console.error('⛔ LinkedIn 自动化已默认关闭（防封号）。');
+  console.error('   须你本人在终端确认后执行：');
+  console.error('   $env:LINKEDIN_ALLOW_AUTOMATION="true"; npm run linkedin:check-login');
+  console.error('   禁止 Agent 连续调用 login / check-login / publish。');
+  process.exit(1);
+}
+
 function parseArgs(argv) {
   const opts = { visibility: 'connections' };
   for (let i = 0; i < argv.length; i++) {
@@ -96,6 +108,7 @@ if (!command) {
   login | check-login | publish --text "..." | publish --file path.md
 
 环境变量:
+  LINKEDIN_ALLOW_AUTOMATION  须设为 true 才执行 login/check-login/publish（默认关闭）
   LINKEDIN_CLI_ROOT         tool/linkedin-cli 路径
   LINKEDIN_CONFIG           默认 skills/linkedin/config.yaml
   LINKEDIN_BROWSER          读 Cookie 的浏览器（默认 chrome）
@@ -109,10 +122,13 @@ npm: linkedin:login | linkedin:check-login | linkedin:publish
 }
 
 if (command === 'login') {
+  requireAutomationConsent();
   await cmdLogin();
 } else if (command === 'check-login') {
+  requireAutomationConsent();
   cmdCheckLogin();
 } else if (command === 'publish') {
+  requireAutomationConsent();
   cmdPublish(rest);
 } else {
   console.error('未知命令:', command);

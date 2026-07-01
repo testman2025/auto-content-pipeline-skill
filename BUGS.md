@@ -1,6 +1,24 @@
 # Bug 修复记录
 
-## 2026-07-01 — TikTok 时长下限 60 秒（扩展文字，不减速）
+## 2026-06-29 — LinkedIn 账号因自动化检测连触风控（测试过快）
+
+**现象**：Agent 在短时间内连续执行 `linkedin:check-login`、打开 Chrome/MCP 浏览器访问 linkedin.com，账号被平台限制或封禁。
+
+**原因**：
+- `auth-status` 会多次探测 LinkedIn Voyager API，连续调用像机器人扫描
+- 与 Playwright、多浏览器上下文、Cookie 抽取叠加，易触发 LinkedIn 反自动化
+- **未发帖**也可能封号；检查登录态不等于「安全操作」
+
+**处置**：
+- **立即停止**一切 `linkedin:*` 命令与脚本；勿换号、勿批量重试
+- 仅通过 LinkedIn 官方申诉 / 帮助中心处理
+- `skills/linkedin/scripts/cli.mjs` 增加门禁：须 `LINKEDIN_ALLOW_AUTOMATION=true` 才执行 login/check-login/publish
+- Agent / 流水线**禁止**自动连跑 LinkedIn 检测；默认只生成文稿
+
+**教训**：领英操作必须人工确认、单次、间隔数分钟以上；测试也不要连点 check-login。
+
+---
+
 
 **需求**：成片至少 1 分钟，保持 `+50%` 英文语速不变。
 

@@ -15,6 +15,15 @@ LinkedIn **个人号**无官方发帖 API。本技能封装 **[frizynn/linkedin-
 - **认证**：从本机 Chrome 读取 Cookie（`browser-cookie3`），或 `LINKEDIN_COOKIE_HEADER`
 - **发帖**：`linkedin post` → Feed「Start a post」→ Playwright 兜底（个人动态，非公司主页）
 
+## 风控（必读）
+
+LinkedIn 对**登录检测、API 探测、浏览器自动化**均敏感；**未发帖**也可能封号。
+
+- **默认关闭**：所有 `linkedin:*` 须先设 `LINKEDIN_ALLOW_AUTOMATION=true` 且**人工**在终端执行
+- **禁止** Agent 连续跑 `check-login` / `login` / `publish`
+- 两次操作间隔建议 **≥10 分钟**；测试也只跑**一次** check-login
+- 默认只生成 `D:/test/hermes/文章/LinkedIn/` 文稿，人工发布
+
 ## 前置
 
 ```powershell
