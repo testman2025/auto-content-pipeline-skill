@@ -12,7 +12,7 @@
 
 **验证**：`npm run xhs:card-render -- -File D:/test/hermes/文章/小红书/preview-20260629-tk-gmvmax.md`，检查卡片饱满度与标题不孤儿
 
-**2026-06-30 补充**：短章节自动合并填满卡片；撰稿每节 220-280 字；渲染时对填充率 <86% 的卡片自动放大（最高 1.22×）避免版面太空。
+**2026-06-30 补充**：`playful-geometric` / `neo-brutalism` 因 h1 装饰盒偏高，单节常仅超出可用高度 2-5%，触发错误拆页。修复：`SOFT_SECTION_OVERFLOW_RATIO=1.06` 整节保留 + 渲染略缩小；并 patch 两主题 CSS 压缩 h1 间距。`terminal` 主题 patch 加粗字体、提高文字/强调色饱和度。
 
 ---
 

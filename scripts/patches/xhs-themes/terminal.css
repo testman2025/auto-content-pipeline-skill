@@ -1,0 +1,180 @@
+/* Hermes patch: terminal — 加粗 + 高饱和，提升黑底可读性 */
+
+.card-inner {
+  background-color: #0d1117;
+}
+
+.card-content {
+  color: #f0f6fc;
+  font-family: 'SF Mono', 'Consolas', 'Microsoft YaHei', monospace;
+  font-size: 42px;
+  font-weight: 600;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+.card-content h1 {
+  font-size: 68px;
+  font-weight: 800;
+  color: #56d364;
+  margin-bottom: 36px;
+  line-height: 1.25;
+  text-shadow: 0 0 1px rgba(86, 211, 100, 0.4);
+}
+
+.card-content h1::before {
+  content: '# ';
+  color: #79c0ff;
+  font-weight: 800;
+}
+
+.card-content h2 {
+  font-size: 54px;
+  font-weight: 800;
+  color: #79c0ff;
+  margin: 44px 0 22px 0;
+}
+
+.card-content h2::before {
+  content: '## ';
+  color: #d2a8ff;
+  font-weight: 800;
+}
+
+.card-content h3 {
+  font-size: 46px;
+  font-weight: 800;
+  color: #d2a8ff;
+  margin: 36px 0 18px 0;
+}
+
+.card-content h3::before {
+  content: '### ';
+  color: #56d364;
+  font-weight: 800;
+}
+
+.card-content p {
+  margin-bottom: 32px;
+  color: #f0f6fc;
+  font-weight: 600;
+}
+
+.card-content strong,
+.card-content b {
+  font-weight: 800;
+  color: #56d364;
+}
+
+.card-content em,
+.card-content i {
+  font-style: italic;
+  color: #ffd33d;
+  font-weight: 600;
+}
+
+.card-content a {
+  color: #79c0ff;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.card-content ul,
+.card-content ol {
+  margin: 28px 0;
+  padding-left: 56px;
+}
+
+.card-content li {
+  margin-bottom: 18px;
+  line-height: 1.65;
+  color: #f0f6fc;
+  font-weight: 600;
+}
+
+.card-content li::marker {
+  color: #56d364;
+  font-weight: 800;
+}
+
+.card-content blockquote {
+  margin: 32px 0;
+  padding: 28px 36px;
+  background-color: #161b22;
+  color: #e6edf3;
+  border-left: 5px solid #56d364;
+  font-weight: 600;
+}
+
+.card-content blockquote::before {
+  content: '> ';
+  color: #56d364;
+  font-weight: 800;
+}
+
+.card-content blockquote p {
+  margin: 0;
+}
+
+.card-content code {
+  font-family: inherit;
+  font-size: 38px;
+  font-weight: 700;
+  background-color: #21262d;
+  color: #ffd33d;
+  padding: 6px 14px;
+  border-radius: 6px;
+}
+
+.card-content pre {
+  margin: 32px 0;
+  padding: 36px;
+  background-color: #161b22;
+  color: #f0f6fc;
+  border: 2px solid #388bfd;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.card-content pre code {
+  background-color: transparent;
+  color: inherit;
+  padding: 0;
+  font-size: 36px;
+  font-weight: 600;
+}
+
+.card-content hr {
+  margin: 44px 0;
+  border: none;
+  height: 3px;
+  background-color: #388bfd;
+}
+
+.card-content img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 32px auto;
+  border: 2px solid #388bfd;
+  border-radius: 8px;
+}
+
+.tags-container {
+  margin-top: 44px;
+  padding-top: 28px;
+  border-top: 2px solid #388bfd;
+}
+
+.tag {
+  display: inline-block;
+  background-color: #21262d;
+  color: #56d364;
+  padding: 12px 26px;
+  border-radius: 30px;
+  font-size: 32px;
+  margin: 10px 14px 10px 0;
+  font-weight: 700;
+  border: 2px solid #56d364;
+}

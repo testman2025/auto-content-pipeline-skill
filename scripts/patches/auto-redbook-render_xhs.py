@@ -75,6 +75,8 @@ MIN_CARD_FILL_RATIO = 0.55
 TARGET_CARD_FILL_RATIO = 0.92
 MAX_CARD_SCALE_UP = 1.35
 MIN_CARD_SCALE_DOWN = 0.88
+# 单节高度略超可用区（大字号主题 h1 装饰多）仍保持整节一页，渲染时略缩小
+SOFT_SECTION_OVERFLOW_RATIO = 1.06
 
 
 def parse_markdown_file(file_path: str) -> dict:
@@ -736,6 +738,10 @@ async def auto_split_content(body: str, theme: str, width: int, height: int,
 
                 if section_height <= available_height:
                     current = section
+                elif section_height <= available_height * SOFT_SECTION_OVERFLOW_RATIO:
+                    # 大装饰标题主题（playful-geometric / neo-brutalism）常仅超出 2-5%，
+                    # 拆页会导致标题与正文分离；整节保留，渲染阶段自动略缩小
+                    cards.append(section)
                 else:
                     section_cards = await auto_split_section(
                         section, theme, width, height, page, available_height

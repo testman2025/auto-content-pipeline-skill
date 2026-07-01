@@ -59,11 +59,14 @@ if ((Test-Path $patchRender) -and (Test-Path $autoRedbook)) {
   Write-Host "[patch] Auto-Redbook render_xhs.py (heading orphan fix)"
 }
 $customThemes = Join-Path $repo "assets/xhs-themes"
+$patchThemes = Join-Path $repo "scripts/patches/xhs-themes"
 $toolThemes = Join-Path $autoRedbook "assets/themes"
-if ((Test-Path $customThemes) -and (Test-Path $toolThemes)) {
-  Get-ChildItem $customThemes -Filter "*.css" | ForEach-Object {
-    Copy-Item $_.FullName (Join-Path $toolThemes $_.Name) -Force
-    Write-Host "[theme] $($_.Name) -> Auto-Redbook assets/themes/"
+foreach ($src in @($patchThemes, $customThemes)) {
+  if ((Test-Path $src) -and (Test-Path $toolThemes)) {
+    Get-ChildItem $src -Filter "*.css" -ErrorAction SilentlyContinue | ForEach-Object {
+      Copy-Item $_.FullName (Join-Path $toolThemes $_.Name) -Force
+      Write-Host "[theme] $($_.Name) -> Auto-Redbook assets/themes/"
+    }
   }
 }
 if (Test-Path (Join-Path $autoRedbook "requirements.txt")) {

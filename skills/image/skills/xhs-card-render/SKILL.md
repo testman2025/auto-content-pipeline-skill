@@ -74,11 +74,11 @@ date: "2026-06-29"
 | `professional` | 专业商务 | 蓝框白底，简洁稳重 | **推荐** |
 | `default` | 默认简约 | 浅灰底 + 靛紫标题 | 可用 |
 | `sketch` | 手绘素描 | 米纸网格 + 铅笔风 | 偏生活向 |
-| `terminal` | 终端命令行 | 深色背景 + 绿色高亮 | 技术向 |
+| `terminal` | 终端命令行 | 深色背景 + 高饱和绿/蓝 | 已 patch 加粗可读 |
 | `retro` | 复古怀旧 | 暖橙边框 | 偏生活方式 |
 | `botanical` | 植物园自然 | 绿色自然风 | 美妆/生活 |
-| `playful-geometric` | 活泼几何 | Memphis 紫粉渐变 | 偏年轻向 |
-| `neo-brutalism` | 新粗野主义 | 粗框强对比红黄 | 偏设计向 |
+| `playful-geometric` | 活泼几何 | Memphis 紫粉渐变 | 已 patch 防拆页 |
+| `neo-brutalism` | 新粗野主义 | 粗框强对比红黄 | 已 patch 防拆页 |
 
 预览样例：`D:/test/hermes/图片/小红书/preview-20260629/themes-preview/{主题名}/`
 
