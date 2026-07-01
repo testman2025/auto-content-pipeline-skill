@@ -22,6 +22,10 @@ function Get-HermesRoot {
 $root = Get-HermesRoot -Override $HermesRoot
 $articleDir = Join-Path $root "文章\抖音"
 
+if ([string]::IsNullOrWhiteSpace($Slug) -and $env:DOUYIN_SLUG) {
+  $Slug = $env:DOUYIN_SLUG
+}
+
 if ([string]::IsNullOrWhiteSpace($File) -and -not [string]::IsNullOrWhiteSpace($Slug)) {
   $candidates = @(
     (Join-Path $articleDir "$Slug.md"),
@@ -40,7 +44,7 @@ if ([string]::IsNullOrWhiteSpace($File) -and -not [string]::IsNullOrWhiteSpace($
 }
 
 if ([string]::IsNullOrWhiteSpace($File)) {
-  throw "Required: -File or -Slug"
+  throw "Required: -File or -Slug (中文 Slug 在 npm 下可能乱码，请用 -File 或 `$env:DOUYIN_SLUG` 或日期前缀如 -Slug 20260629)"
 }
 
 if (-not (Test-Path $File)) {

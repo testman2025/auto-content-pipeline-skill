@@ -18,6 +18,7 @@
     "pipeline:xhs": "powershell -ExecutionPolicy Bypass -File scripts/pipeline-xhs.ps1",
     "douyin:create-video": "node skills/douyin/scripts/cli.mjs create-video",
     "pipeline:douyin": "powershell -ExecutionPolicy Bypass -File scripts/pipeline-douyin.ps1",
+    "douyin:install": "powershell -ExecutionPolicy Bypass -File scripts/install-douyin-video.ps1",
     "douyin:login": "npx @panda-video-automation/pva douyin login",
     "douyin:upload": "npx @panda-video-automation/pva douyin upload",
     "postinstall": "node skills/youtube/scripts/patch-pva-i18n.mjs",

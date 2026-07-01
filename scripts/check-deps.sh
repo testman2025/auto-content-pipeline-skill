@@ -28,6 +28,19 @@ echo "--- 系统工具 ---"
 check ffmpeg
 
 echo ""
+echo "--- 抖音视频 (edge-tts) ---"
+if command -v uv &>/dev/null && uv run edge-tts --version &>/dev/null 2>&1; then
+  echo -e "${GREEN}✅ edge-tts (uv run)${NC}"; pass=$((pass+1))
+else
+  echo -e "${RED}❌ edge-tts — 需要 uv + edge-tts${NC}"; fail=$((fail+1))
+fi
+if [ -f "$BASE_DIR/skills/douyin/scripts/cli.mjs" ]; then
+  echo -e "${GREEN}✅ skills/douyin${NC}"; pass=$((pass+1))
+else
+  echo -e "${RED}❌ skills/douyin — 未找到${NC}"; fail=$((fail+1))
+fi
+
+echo ""
 echo "--- Python 工具 ---"
 if command -v zhihu &>/dev/null && zhihu --help &>/dev/null 2>&1; then
   echo -e "${GREEN}✅ pyzhihu-cli (zhihu)${NC}"; pass=$((pass+1))

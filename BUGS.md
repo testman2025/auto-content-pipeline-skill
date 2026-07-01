@@ -1,5 +1,15 @@
 # Bug 修复记录
 
+## 2026-07-01 — Windows 上 FFCreator 无法安装（canvas 原生依赖）
+
+**现象**：`npm install ffcreator` 在 Windows + Node 24 失败（canvas 无预编译包，需 VS C++ 编译环境）。
+
+**处理**：抖音视频默认使用 **ffmpeg + ASS 花字**（黑底、关键词高亮、淡入动画），不依赖 FFCreator。Linux/macOS 可选 `npm run douyin:install` 安装 FFCreator；失败自动回退 ffmpeg。
+
+**补充**：`npm run pipeline:douyin -- -Slug` 传中文 Slug 在 Windows npm 下可能乱码，请用 `-File` 完整路径、`$env:DOUYIN_SLUG` 或日期前缀 `-Slug 20260629`。
+
+---
+
 ## 2026-07-01 — 抖音 TTS 误用 YouTube 英文音色
 
 **现象**：`pipeline:douyin` 首次生成时 TTS 使用 `en-US-JennyNeural`，中文口播被英文配音。

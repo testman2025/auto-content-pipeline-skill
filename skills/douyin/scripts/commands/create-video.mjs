@@ -63,7 +63,7 @@ export async function cmdCreateVideo(argv) {
   console.log('[douyin:create-video] chars:', parsed.plainText.length);
   console.log('[douyin:create-video] voice:', profile.voice);
 
-  const result = createDouyinTextVideo({
+  const result = await createDouyinTextVideo({
     text: parsed.plainText,
     voice: profile.voice,
     outputDir: videoDir,
@@ -81,6 +81,7 @@ export async function cmdCreateVideo(argv) {
     cueCount: result.cueCount,
     voice: profile.voice,
     style: profile.style,
+    renderer: result.renderer,
     createdAt: new Date().toISOString(),
   };
 

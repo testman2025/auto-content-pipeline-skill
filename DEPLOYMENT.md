@@ -12,7 +12,7 @@
 |------|------|----------|
 | **YouTube** | ✅ 已跑通 | `npm run youtube:publish -- --video "..." --title "..."` |
 | **公众号** | ✅ 已跑通 | baoyu `wechat-api.ts` → 草稿箱 |
-| **抖音** | ✅ 已跑通 | `npm run douyin:login` → `npm run douyin:upload` |
+| **抖音** | ✅ 已跑通 | `npm run pipeline:douyin` → `npm run douyin:upload` |
 | **配图** | ✅ 已跑通 | `npm run image:generate -- --platform zhihu ...` |
 | **知乎** | ✅ 链路就绪 | `npm run zhihu:login` → `npm run zhihu:publish -- --title ... --content-file ...` |
 | **小红书** | ✅ 链路就绪 | `skills/xiaohongshu/scripts/cli.py publish ...` |
@@ -94,7 +94,30 @@ hermes -s auto-content-pipeline -q "帮我跑一篇内容，话题：TK小店选
 
 ---
 
-## 抖音发布流程（PVA）
+## 抖音视频创作 + 发布
+
+口播稿 → 黑底花字竖版 MP4（Edge TTS + ffmpeg ASS，无需新 API Key）：
+
+```powershell
+npm run pipeline:douyin -- -File "D:/test/hermes/文章/抖音/xxx.md"
+# 或
+npm run pipeline:douyin -- -Slug 20260629_独立站TK双店SOP_抖音
+```
+
+输出：`D:/test/hermes/视频/{slug}/` + `manifest.json`
+
+发布（PVA，需先登录）：
+
+```powershell
+npm run douyin:login
+npm run douyin:upload -- --video "D:/test/hermes/视频/xxx/yyy.mp4" --title "标题 #话题"
+```
+
+> Windows 默认 `ffmpeg+ASS` 花字渲染。可选 FFCreator（Linux/macOS）：`npm run douyin:install`
+
+---
+
+## 抖音发布流程（PVA，仅上传）
 
 ```powershell
 npm run douyin:login
