@@ -521,24 +521,33 @@ async def render_html_to_image(html_content: str, output_path: str,
                     const availableWidth = viewportContent.clientWidth;
                     const availableHeight = viewportContent.clientHeight;
                     const contentWidth = Math.max(scaleEl.scrollWidth, scaleEl.getBoundingClientRect().width);
-                    const contentHeight = Math.max(scaleEl.scrollHeight, scaleEl.getBoundingClientRect().height);
 
-                    if (!contentWidth || !contentHeight || !availableWidth || !availableHeight) return;
+                    const scaleRect = scaleEl.getBoundingClientRect();
+                    let actualContentHeight = 0;
+                    for (const child of scaleEl.children) {
+                        const rect = child.getBoundingClientRect();
+                        actualContentHeight = Math.max(actualContentHeight, rect.bottom - scaleRect.top);
+                    }
+                    if (!actualContentHeight) {
+                        actualContentHeight = Math.max(scaleEl.scrollHeight, scaleEl.getBoundingClientRect().height);
+                    }
+
+                    if (!contentWidth || !actualContentHeight || !availableWidth || !availableHeight) return;
 
                     let scale = 1;
                     const widthScale = availableWidth / contentWidth;
-                    const fillRatio = contentHeight / availableHeight;
+                    const fillRatio = actualContentHeight / availableHeight;
 
                     if (fillRatio < targetFill) {
                         scale = Math.min(
                             maxScaleUp,
-                            (availableHeight * targetFill) / contentHeight,
+                            (availableHeight * targetFill) / actualContentHeight,
                             widthScale
                         );
-                    } else if (contentHeight > availableHeight) {
+                    } else if (actualContentHeight > availableHeight) {
                         scale = Math.max(
                             minScaleDown,
-                            Math.min(widthScale, availableHeight / contentHeight)
+                            Math.min(widthScale, availableHeight / actualContentHeight)
                         );
                     }
 
