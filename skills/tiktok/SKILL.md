@@ -19,7 +19,7 @@ version: 1.1.0
 
 | 子技能 | 说明 |
 |--------|------|
-| tt-create | 英文口播 MD → 1080×1920 MP4（花字+TTS，≤90s） |
+| tt-create | 英文口播 MD → 1080×1920 MP4（花字+TTS，60～90s） |
 | tt-auth | 登录 / check-login |
 | tt-publish | 上传已有 MP4 |
 

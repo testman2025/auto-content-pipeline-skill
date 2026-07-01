@@ -68,7 +68,10 @@ export async function cmdCreateVideo(argv) {
   console.log('[tiktok:create-video] file:', file);
   console.log('[tiktok:create-video] title:', parsed.title);
   console.log('[tiktok:create-video] sentences:', parsed.sentences.length);
-  console.log('[tiktok:create-video] est. duration:', `${estSec.toFixed(0)}s (max ${profile.maxDurationSec}s)`);
+  console.log(
+    '[tiktok:create-video] est. duration:',
+    `${estSec.toFixed(0)}s (min ${profile.minDurationSec}s, max ${profile.maxDurationSec}s)`
+  );
   console.log('[tiktok:create-video] voice:', voiceResolved.voiceId, `(${voiceResolved.label})`);
   console.log('[tiktok:create-video] tts rate:', profile.ttsRate);
 
@@ -79,6 +82,7 @@ export async function cmdCreateVideo(argv) {
     basename: videoBasename,
     ttsRate: profile.ttsRate,
     maxDurationSec: profile.maxDurationSec,
+    minDurationSec: profile.minDurationSec,
   });
 
   const manifest = {
@@ -91,7 +95,9 @@ export async function cmdCreateVideo(argv) {
     voicePath: result.voicePath,
     duration: result.duration,
     maxDurationSec: profile.maxDurationSec,
+    minDurationSec: profile.minDurationSec,
     truncated: result.truncated,
+    textExpanded: result.textExpanded,
     sentenceCount: result.sentenceCount,
     cueCount: result.cueCount,
     voice: voiceResolved.voiceId,

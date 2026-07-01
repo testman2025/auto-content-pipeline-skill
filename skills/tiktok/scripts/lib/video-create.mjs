@@ -5,7 +5,7 @@ import { parseVtt, formatAssTime } from '../../../douyin/scripts/lib/vtt-to-scen
 import { toFancyAssText } from '../../../douyin/scripts/lib/fancy-text.mjs';
 import { cuesForDisplay } from '../../../douyin/scripts/lib/display-text.mjs';
 import { splitAndWrapCues, fontSizeForText } from './text-wrap-en.mjs';
-import { trimSentencesToDuration } from './duration-limit.mjs';
+import { trimSentencesToDuration, expandSentencesToMinDuration } from './duration-limit.mjs';
 
 function run(cmd, args) {
   const r = spawnSync(cmd, args, { stdio: 'inherit', shell: true });
@@ -150,7 +150,7 @@ export function renderFfmpegAss(opts) {
 }
 
 /**
- * @param {{ sentences: string[], voice: string, outputDir: string, basename: string, ttsRate?: string, maxDurationSec?: number }} opts
+ * @param {{ sentences: string[], voice: string, outputDir: string, basename: string, ttsRate?: string, maxDurationSec?: number, minDurationSec?: number }} opts
  */
 export function createTiktokTextVideo(opts) {
   const {
@@ -160,18 +160,35 @@ export function createTiktokTextVideo(opts) {
     basename,
     ttsRate = '+50%',
     maxDurationSec = 90,
+    minDurationSec = 60,
   } = opts;
 
   mkdirSync(outputDir, { recursive: true });
   const workDir = join(outputDir, basename);
   const videoPath = join(outputDir, `${basename}.mp4`);
 
-  const preTrim = trimSentencesToDuration(allSentences, maxDurationSec * 0.92, ttsRate);
-  let sentences = preTrim.sentences;
+  const expanded = expandSentencesToMinDuration(
+    allSentences,
+    minDurationSec,
+    maxDurationSec,
+    ttsRate
+  );
+  let sentences = expanded.sentences;
+  let textExpanded = expanded.expanded;
+
+  const preTrim = trimSentencesToDuration(sentences, maxDurationSec * 0.92, ttsRate);
+  sentences = preTrim.sentences;
   let truncated = preTrim.truncated;
   let text = sentences.join(' ');
 
   let tts = synthesizeTts({ text, voice, workDir, ttsRate });
+
+  if (textExpanded) {
+    console.log(
+      `[tiktok] Text expanded for min ${minDurationSec}s (+${expanded.addedSentences} sentences, rate ${ttsRate} unchanged)`
+    );
+  }
+
   let attempts = 0;
 
   while (tts.duration > maxDurationSec + 1.5 && sentences.length > 4 && attempts < 10) {
@@ -186,6 +203,25 @@ export function createTiktokTextVideo(opts) {
   if (tts.duration > maxDurationSec + 2) {
     throw new Error(
       `[tiktok] Duration ${tts.duration.toFixed(1)}s exceeds max ${maxDurationSec}s after trim. Shorten the script.`
+    );
+  }
+
+  if (tts.duration < minDurationSec - 2) {
+    const more = expandSentencesToMinDuration(sentences, minDurationSec, maxDurationSec, ttsRate);
+    if (more.expanded) {
+      textExpanded = true;
+      sentences = more.sentences;
+      text = sentences.join(' ');
+      tts = synthesizeTts({ text, voice, workDir, ttsRate });
+      console.log(
+        `[tiktok] Re-expanded after TTS (${tts.duration.toFixed(1)}s target min ${minDurationSec}s)`
+      );
+    }
+  }
+
+  if (tts.duration < minDurationSec - 2) {
+    throw new Error(
+      `[tiktok] Duration ${tts.duration.toFixed(1)}s below min ${minDurationSec}s. Lengthen the English script.`
     );
   }
 
@@ -213,8 +249,10 @@ export function createTiktokTextVideo(opts) {
     cueCount: renderResult.cueCount,
     renderer: renderResult.renderer,
     ttsRate,
+    minDurationSec,
     sentenceCount: sentences.length,
     truncated,
+    textExpanded: textExpanded,
     plainText: text,
   };
 }

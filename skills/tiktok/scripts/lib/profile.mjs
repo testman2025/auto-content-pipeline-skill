@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'fs';
 import { resolveVoice } from '../../../douyin/scripts/lib/voices.mjs';
 import { profilePath } from './paths.mjs';
-import { DEFAULT_MAX_DURATION_SEC } from './duration-limit.mjs';
+import { DEFAULT_MAX_DURATION_SEC, DEFAULT_MIN_DURATION_SEC } from './duration-limit.mjs';
 
 export const DEFAULT_VOICE_PRESET = 'us-male';
 
@@ -17,6 +17,7 @@ export function loadTiktokProfile() {
     style: 'fancy-text-black',
     ttsRate: '+50%',
     maxDurationSec: DEFAULT_MAX_DURATION_SEC,
+    minDurationSec: DEFAULT_MIN_DURATION_SEC,
   };
 
   if (!existsSync(profilePath)) {
@@ -42,7 +43,9 @@ export function loadTiktokProfile() {
   }
 
   const maxRaw = getInSection('视频时长上限') || process.env.TIKTOK_MAX_DURATION_SEC || '';
+  const minRaw = getInSection('视频时长下限') || process.env.TIKTOK_MIN_DURATION_SEC || '';
   const maxDurationSec = Number(maxRaw) || defaults.maxDurationSec;
+  const minDurationSec = Number(minRaw) || defaults.minDurationSec;
 
   return {
     voice: resolved.voiceId,
@@ -53,6 +56,7 @@ export function loadTiktokProfile() {
     style: getInSection('视频样式') || defaults.style,
     ttsRate: getInSection('TTS 语速') || process.env.TIKTOK_TTS_RATE || defaults.ttsRate,
     maxDurationSec: Math.min(120, Math.max(30, maxDurationSec)),
+    minDurationSec: Math.min(maxDurationSec, Math.max(15, minDurationSec)),
   };
 }
 

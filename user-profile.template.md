@@ -36,6 +36,7 @@
 ## TikTok 配置（启用时填写）
 - TTS 音色: us-male
 - TTS 语速: +50%
+- 视频时长下限: 60
 - 视频时长上限: 90
 - 默认标签: #fyp #TikTokShop
 - 视频样式: fancy-text-black（黑底花字，同抖音）
@@ -52,7 +53,7 @@
 | us-female-warm | en-US-AriaNeural | 美式自信女声 |
 | uk-male / uk-female | en-GB-* | 英式 |
 
-> 口播稿请写**英文**；超长稿会自动裁切到约 **90 秒（1 分半）** 以内。
+> 口播稿请写**英文**。时长 **60～90 秒**：过短自动扩展复述（语速不变）；过长自动裁切。
 
 ## X (Twitter) 配置（启用时填写）
 - 账号 handle: (@username)
