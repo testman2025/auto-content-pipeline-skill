@@ -17,7 +17,7 @@
 | **知乎** | ✅ 链路就绪 | `npm run zhihu:login` → `npm run zhihu:publish -- --title ... --content-file ...` |
 | **小红书** | ✅ 链路就绪 | `skills/xiaohongshu/scripts/cli.py publish ...` |
 | **TikTok** | ✅ 链路就绪 | `npm run pipeline:tiktok` → `npm run tiktok:publish` |
-| **LinkedIn** | ⚠️ 登录已修复，发帖停用 | 默认只生成文稿 |
+| **LinkedIn** | ⚠️ 个人号已接 linkedin-cli | `npm run linkedin:login` → `linkedin:publish`；公司号预留 |
 | **X** | ⚠️ 链路已接入，发帖停用 | 默认只生成文稿 |
 
 ---

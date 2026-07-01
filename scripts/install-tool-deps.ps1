@@ -77,7 +77,14 @@ if (Test-Path (Join-Path $autoRedbook "requirements.txt")) {
 }
 
 Ensure-Clone "social-auto-upload" "https://github.com/dreammis/social-auto-upload.git" | Out-Null
-Ensure-Clone "openclaw-linkedin-skill" "https://github.com/jarvis-survives/openclaw-linkedin-skill.git" | Out-Null
+$linkedinCli = Ensure-Clone "linkedin-cli" "https://github.com/frizynn/linkedin-cli.git"
+if (Test-Path (Join-Path $linkedinCli "pyproject.toml")) {
+  Write-Host "[uv] linkedin-cli (frizynn, personal profile)"
+  Push-Location $linkedinCli
+  uv sync
+  uv run playwright install chromium
+  Pop-Location
+}
 $reddit = Ensure-Clone "reddit-skills" "https://github.com/1146345502/reddit-skills.git"
 if (Test-Path (Join-Path $reddit "pyproject.toml")) {
   Write-Host "[uv] reddit-skills"

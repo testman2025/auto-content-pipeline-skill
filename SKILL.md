@@ -52,7 +52,7 @@ metadata:
 | **知乎** | ✅ 链路就绪 | `skills/zhihu` + pyzhihu-cli | `zhihu:login` → `zhihu:publish --content-file ...`（MD→HTML） |
 | **小红书** | ✅ 链路就绪 | skills/xiaohongshu + Chrome 扩展 | `skills/xiaohongshu/scripts/cli.py publish ...` |
 | **TikTok 海外** | ✅ 链路就绪 | social-auto-upload tk_uploader | `uv run python skills/tiktok/scripts/cli.py publish ...` |
-| **LinkedIn** | ⚠️ 登录已修复，自动发帖停用 | 系统 Chrome + Playwright | 2026-06-30 发帖触发封号；默认只生成文稿 |
+| **LinkedIn** | ⚠️ 个人号 linkedin-cli 已接 | frizynn/linkedin-cli + Chrome Cookie | 公司号预留；自动发帖仍高风险，默认只出稿 |
 | **X (Twitter)** | ⚠️ 链路已接入，自动发帖停用 | baoyu-post-to-x CDP | 2026-06-30 发帖触发封号；默认只生成文稿 |
 
 **老兵原则**：
@@ -544,7 +544,7 @@ patchright install chromium
 
 **YouTube** 优先 `sau youtube`（social-auto-upload）；失败时自动回退 Playwright（`YOUTUBE_PUBLISH_BACKEND=playwright` 可强制）。
 
-**LinkedIn** 基于 [openclaw-linkedin-skill](https://github.com/jarvis-survives/openclaw-linkedin-skill)，使用系统 Chrome。**高风险**：无个人发帖 API，自动化极易封号；默认建议仅生成文稿或人工发布。
+**LinkedIn** 基于 [frizynn/linkedin-cli](https://github.com/frizynn/linkedin-cli)（个人号 Feed + Chrome Cookie）。公司主页预留见 `skills/linkedin/references/company-page.md`。**高风险**：无个人发帖 API，自动化易封号；默认建议只出稿或人工发布。
 
 **TikTok** 基于 social-auto-upload `tk_uploader`（tiktok.com），与抖音 `sau douyin` 不同。
 

@@ -100,7 +100,20 @@
 
 ---
 
-## 2026-06-30 — LinkedIn 登录「This browser or app may not be secure」
+## 2026-07-01 — LinkedIn 改用 frizynn/linkedin-cli（个人号）
+
+**背景**：`openclaw-linkedin-skill` 仅有 SKILL 文档、无可执行脚本；原 `cli.mjs` 为手写 Playwright。
+
+**改动**：
+- `tool/linkedin-cli`（frizynn/linkedin-cli）替代 `openclaw-linkedin-skill`
+- `skills/linkedin/scripts/cli.mjs` 薄封装 `linkedin auth-status` / `linkedin post`
+- Chrome Cookie 认证（`browser-cookie3`）；配置 `skills/linkedin/config.yaml`
+- 公司主页预留：`references/company-page.md`，`LINKEDIN_ACCOUNT_TYPE=company` 时拒绝发布
+
+**验证**：`npm run tool:install` → `npm run linkedin:login` → `npm run linkedin:check-login`
+
+---
+
 
 **现象**：`npm run linkedin:login` 打开 Playwright 自带 Chromium，Google/LinkedIn 判定为不安全浏览器，无法登录。
 

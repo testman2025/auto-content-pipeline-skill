@@ -30,8 +30,13 @@
 - sau 账号名: default
 
 ## LinkedIn 配置（启用时填写）
-- 个人主页 slug:
+- 账号类型: personal（个人号，当前支持）/ company（公司主页，预留未接）
+- 个人主页 slug: (如 your-name)
 - 默认语言: English / 中文
+- Cookie 来源: browser（从 Chrome 读取，推荐）/ env（LINKEDIN_COOKIE_HEADER）
+- 默认可见性: connections / public
+- 上游工具: frizynn/linkedin-cli（`npm run tool:install`）
+- 公司 Page ID: （预留，接入公司号时填写）
 
 ## TikTok 配置（启用时填写）
 - TTS 音色: us-male
