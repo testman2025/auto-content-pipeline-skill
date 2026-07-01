@@ -52,6 +52,19 @@ foreach ($name in $requiredBaoyu) {
   Pop-Location
 }
 
+$autoRedbook = Ensure-Clone "Auto-Redbook-Skills" "https://github.com/comeonzhj/Auto-Redbook-Skills.git"
+$patchRender = Join-Path $repo "scripts/patches/auto-redbook-render_xhs.py"
+if ((Test-Path $patchRender) -and (Test-Path $autoRedbook)) {
+  Copy-Item $patchRender (Join-Path $autoRedbook "scripts/render_xhs.py") -Force
+  Write-Host "[patch] Auto-Redbook render_xhs.py (heading orphan fix)"
+}
+if (Test-Path (Join-Path $autoRedbook "requirements.txt")) {
+  $python = if (Test-Path "D:\dev\python3\python.exe") { "D:\dev\python3\python.exe" } else { "python" }
+  Write-Host "[pip] Auto-Redbook-Skills (markdown pyyaml playwright)"
+  & $python -m pip install -r (Join-Path $autoRedbook "requirements.txt") -q
+  & $python -m playwright install chromium
+}
+
 Ensure-Clone "social-auto-upload" "https://github.com/dreammis/social-auto-upload.git" | Out-Null
 Ensure-Clone "openclaw-linkedin-skill" "https://github.com/jarvis-survives/openclaw-linkedin-skill.git" | Out-Null
 $reddit = Ensure-Clone "reddit-skills" "https://github.com/1146345502/reddit-skills.git"

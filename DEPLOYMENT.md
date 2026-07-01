@@ -133,7 +133,7 @@ auto-content-pipeline-skill/
 | `npm run check` | 依赖与 WECHAT_* / PVA 检查 |
 | `npm run tool:install` | clone tool/ 依赖 |
 | `npm run skills:register` | 注册 Hermes 技能 |
-| `npm run wechat:install` | tool:install + skills:register |
+| `npm run xhs:card-render -- -File ... -Out ...` | 小红书 MD→卡片图（非 AI） |
 
 ---
 
@@ -142,4 +142,4 @@ auto-content-pipeline-skill/
 - 小红书标题限 **20字**
 - 公众号 API 需 **IP 白名单**
 - 抖音/小红书依赖本地 Chrome
-- 配图走 tokenware `gpt-image-2`（`tokenware-image` 技能）
+- 小红书正文卡片走 **xhs-card-render**（Auto-Redbook HTML 模板，非 AI）；知乎/公众号封面走 tokenware

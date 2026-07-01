@@ -16,7 +16,8 @@ metadata:
 
 | 技能 | 说明 |
 |------|------|
-| **tokenware-image** | tokenware API 生图（唯一配图方案） |
+| **xhs-card-render** | 小红书 MD→卡片图（Auto-Redbook，**非 AI**） |
+| **tokenware-image** | 知乎/公众号/抖音封面（tokenware API） |
 
 ## 快速开始
 
