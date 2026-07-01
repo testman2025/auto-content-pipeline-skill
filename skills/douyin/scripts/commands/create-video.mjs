@@ -62,12 +62,17 @@ export async function cmdCreateVideo(argv) {
   console.log('[douyin:create-video] title:', parsed.title);
   console.log('[douyin:create-video] chars:', parsed.plainText.length);
   console.log('[douyin:create-video] voice:', profile.voice);
+  console.log('[douyin:create-video] tts rate:', profile.ttsRate);
+  console.log('[douyin:create-video] bgm:', profile.bgmPath || '(auto default)');
 
   const result = await createDouyinTextVideo({
     text: parsed.plainText,
     voice: profile.voice,
     outputDir: videoDir,
     basename: videoBasename,
+    ttsRate: profile.ttsRate,
+    bgmPath: profile.bgmPath,
+    bgmVolume: profile.bgmVolume,
   });
 
   const manifest = {
@@ -81,6 +86,8 @@ export async function cmdCreateVideo(argv) {
     cueCount: result.cueCount,
     voice: profile.voice,
     style: profile.style,
+    ttsRate: profile.ttsRate,
+    bgmPath: result.bgmPath,
     renderer: result.renderer,
     createdAt: new Date().toISOString(),
   };

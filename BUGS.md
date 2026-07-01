@@ -1,6 +1,16 @@
 # Bug 修复记录
 
-## 2026-07-01 — Windows 上 FFCreator 无法安装（canvas 原生依赖）
+## 2026-07-01 — 花字显示不全 + 配音过慢过干
+
+**现象**：竖屏花字长句超出画面；纯 TTS 无 BGM 听感干涩；口播偏慢。
+
+**修复**：
+1. `text-wrap.mjs`：每行最多 12 字、最多 2 行；超长 VTT 按时间轴拆分
+2. 动态字号（46–64）+ 加宽左右边距
+3. 默认 TTS 语速 `+50%`（`user-profile` 可改 `TTS 语速: +75%` 约 1.75 倍）
+4. 自动混入 BGM（默认生成 `skills/douyin/assets/default-bgm.mp3`，或放 `D:/test/hermes/音频/douyin-bgm.mp3`）
+
+---
 
 **现象**：`npm install ffcreator` 在 Windows + Node 24 失败（canvas 无预编译包，需 VS C++ 编译环境）。
 

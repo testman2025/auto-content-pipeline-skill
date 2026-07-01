@@ -8,13 +8,21 @@ import { renderFfcreator } from './video-create-ffcreator.mjs';
  * @param {{ text: string, voice: string, outputDir: string, basename: string }} opts
  */
 export async function createDouyinTextVideo(opts) {
-  const { text, voice, outputDir, basename } = opts;
+  const {
+    text,
+    voice,
+    outputDir,
+    basename,
+    ttsRate = '+50%',
+    bgmPath = '',
+    bgmVolume = 0.14,
+  } = opts;
 
   mkdirSync(outputDir, { recursive: true });
   const workDir = join(outputDir, basename);
   const videoPath = join(outputDir, `${basename}.mp4`);
 
-  const tts = synthesizeTts({ text, voice, workDir });
+  const tts = synthesizeTts({ text, voice, workDir, ttsRate });
   if (!existsSync(tts.voicePath)) {
     throw new Error(`TTS output missing: ${tts.voicePath}`);
   }
@@ -25,6 +33,9 @@ export async function createDouyinTextVideo(opts) {
     workDir,
     videoPath,
     duration: tts.duration,
+    bgmPath,
+    bgmVolume,
+    ttsRate,
   };
 
   const renderer = resolveRenderer();
@@ -52,5 +63,7 @@ export async function createDouyinTextVideo(opts) {
     duration: tts.duration,
     cueCount: renderResult.cueCount,
     renderer: renderResult.renderer,
+    bgmPath: renderResult.bgmPath,
+    ttsRate,
   };
 }

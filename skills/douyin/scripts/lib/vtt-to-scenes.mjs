@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs';
 import { toFancyAssText } from './fancy-text.mjs';
+import { splitAndWrapCues, fontSizeForText } from './text-wrap.mjs';
 
 /**
  * @param {string} vttPath
@@ -36,6 +37,13 @@ export function parseVtt(vttPath) {
 }
 
 /**
+ * @param {{ start: number, end: number, text: string }[]} cues
+ */
+export function prepareDisplayCues(cues) {
+  return splitAndWrapCues(cues, toFancyAssText);
+}
+
+/**
  * @param {string} t
  */
 function parseVttTime(t) {
@@ -58,9 +66,14 @@ function mergeShortCues(cues) {
     const prev = merged[merged.length - 1];
     const cur = cues[i];
     if (cur.text.length < 8 && cur.end - cur.start < 1.5) {
-      prev.text += cur.text;
-      prev.fancyText = toFancyAssText(prev.text);
-      prev.end = cur.end;
+      const combinedText = prev.text + cur.text;
+      if (combinedText.length <= 24) {
+        prev.text = combinedText;
+        prev.fancyText = toFancyAssText(prev.text);
+        prev.end = cur.end;
+      } else {
+        merged.push(cur);
+      }
     } else {
       merged.push(cur);
     }
@@ -92,7 +105,7 @@ WrapStyle: 0
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,${fontName},72,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,60,60,120,1
+Style: Default,${fontName},54,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,100,100,140,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -109,7 +122,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
       const anim = animations[i % animations.length];
       const start = formatAssTime(cue.start);
       const end = formatAssTime(Math.max(cue.end, cue.start + 0.8));
-      return `Dialogue: 0,${start},${end},Default,,0,0,0,,${anim}${cue.fancyText}`;
+      const fs = fontSizeForText(cue.text.replace(/\\N/g, '\n'));
+      return `Dialogue: 0,${start},${end},Default,,0,0,0,,{\\fs${fs}}${anim}${cue.fancyText}`;
     })
     .join('\n');
 

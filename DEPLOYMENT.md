@@ -106,6 +106,14 @@ npm run pipeline:douyin -- -Slug 20260629_独立站TK双店SOP_抖音
 
 输出：`D:/test/hermes/视频/{slug}/` + `manifest.json`
 
+默认 **TTS 语速 +50%**、**轻柔 BGM 垫底**（音量约 14%）。可在 `user-profile.md` 的 `## 抖音配置` 调整：
+
+```markdown
+- TTS 语速: +50%        # 或 +75% / +100%（2倍速）
+- 背景音乐: D:/test/hermes/音频/douyin-bgm.mp3
+- BGM 音量: 0.14
+```
+
 发布（PVA，需先登录）：
 
 ```powershell
