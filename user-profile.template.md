@@ -73,6 +73,12 @@
 - 默认主题: professional
 - 一键出图: `npm run pipeline:xhs -- -Slug {slug}`
 
+## 抖音配置（启用时填写）
+- TTS 音色: zh-CN-YunxiNeural
+- 默认话题: #跨境电商 #TikTokShop
+- 视频样式: fancy-text-black（黑底花字）
+- 一键出片: `npm run pipeline:douyin -- -Slug {slug}`
+
 ## 平台风控提示（2026-06-30 实测）
 
 | 平台 | 自动发布 | 说明 |

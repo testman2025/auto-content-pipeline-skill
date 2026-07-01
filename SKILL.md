@@ -331,13 +331,14 @@ humanizer-zh 处理规则:
   - **结尾**：自然收尾+讨论引导，不要用markdown尾巴
   - **总体原则**：写出来应该是一篇读起来像人写的文章，而不是一个markdown文件|
 | 小红书 | 输出 **配图用 MD**（YAML frontmatter + `---` 分节）；每节 **260-320 字**：标题 + 导语 2-3 句 + **5-6 条**要点（每条 20-35 字） |
-| 抖音 | 口播稿 + 画面提示标注 `[画面: ...]` |
+| 抖音 | 口播稿（短句排版，自动剥离 `[画面:]`） |
 
-### 4c. 配图
+### 4c. 配图 / 视频
 
 | 平台 | 技能 | 说明 |
 |------|------|------|
 | **小红书正文卡片** | **pipeline:xhs** | 配图 MD → PNG + manifest，`professional` 主题，**禁止 tokenware AI** |
+| **抖音竖版视频** | **pipeline:douyin** | 口播 MD → 黑底花字 9:16 MP4 + TTS（Edge TTS），**禁止 tokenware AI 做正文** |
 | 知乎封面 | tokenware-image | 1792×1024 |
 | 公众号封面 | tokenware-image | 1792×1024 |
 | 抖音/YouTube 封面 | tokenware-image | 1792×1024 |
@@ -368,6 +369,20 @@ npm run xhs:card-render -- `
 ```
 
 输出：`cover.png` + `card_1.png` … 发布时传给 `skills/xiaohongshu` 的 `fill-publish`。
+
+#### 抖音（pipeline:douyin）
+
+加载 `skills/douyin/SKILL.md`。
+
+口播稿放 `D:/test/hermes/文章/抖音/{slug}.md`，自动剥离 `[画面:]` 标注。
+
+```powershell
+npm run pipeline:douyin -- -Slug "{slug}"
+# 或
+npm run pipeline:douyin -- -File "D:/test/hermes/文章/抖音/{slug}.md"
+```
+
+输出：`D:/test/hermes/视频/{slug}/` + `{timestamp}_{slug}.mp4` + `manifest.json`。
 
 #### 其他平台（tokenware-image）
 
