@@ -548,7 +548,7 @@ patchright install chromium
 
 **YouTube** 优先 `sau youtube`（social-auto-upload）；失败时自动回退 Playwright（`YOUTUBE_PUBLISH_BACKEND=playwright` 可强制）。
 
-**LinkedIn** 基于 [frizynn/linkedin-cli](https://github.com/frizynn/linkedin-cli)（个人号 Feed + Chrome Cookie）。公司主页预留见 `skills/linkedin/references/company-page.md`。**高风险**：无个人发帖 API，自动化易封号；默认建议只出稿或人工发布。
+**LinkedIn** 基于 **官方 OAuth + Posts API**（`w_member_social`）。打开授权页后须用户手动登录授权，终端确认后再存令牌/发帖。公司主页预留见 `skills/linkedin/references/company-page.md`。
 
 **TikTok** 基于 social-auto-upload `tk_uploader`（tiktok.com），与抖音 `sau douyin` 不同。
 

@@ -77,14 +77,7 @@ if (Test-Path (Join-Path $autoRedbook "requirements.txt")) {
 }
 
 Ensure-Clone "social-auto-upload" "https://github.com/dreammis/social-auto-upload.git" | Out-Null
-$linkedinCli = Ensure-Clone "linkedin-cli" "https://github.com/frizynn/linkedin-cli.git"
-if (Test-Path (Join-Path $linkedinCli "pyproject.toml")) {
-  Write-Host "[uv] linkedin-cli (frizynn, personal profile)"
-  Push-Location $linkedinCli
-  uv sync
-  uv run playwright install chromium
-  Pop-Location
-}
+# LinkedIn 使用官方 OAuth API（skills/linkedin），不再 clone linkedin-cli
 $reddit = Ensure-Clone "reddit-skills" "https://github.com/1146345502/reddit-skills.git"
 if (Test-Path (Join-Path $reddit "pyproject.toml")) {
   Write-Host "[uv] reddit-skills"

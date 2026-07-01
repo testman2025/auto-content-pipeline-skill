@@ -1,65 +1,34 @@
 ---
 name: linkedin-skills
 description: |
-  LinkedIn 个人号自动化。基于 frizynn/linkedin-cli（tool/linkedin-cli），从 Chrome Cookie 认证，Playwright 发帖。
-  公司主页预留见 references/company-page.md。当用户要求发布 LinkedIn 个人动态时触发。
-version: 1.1.0
+  LinkedIn 个人号官方 API 发帖（OAuth + Posts API）。打开授权页后须用户手动登录授权，终端确认后再存令牌/发布。
+  公司主页预留。当用户要求 LinkedIn API 发帖时触发。
+version: 2.0.0
 metadata:
-  source: https://github.com/frizynn/linkedin-cli
+  source: LinkedIn Marketing API / Share on LinkedIn
 ---
 
-# LinkedIn Skills（个人号）
+# LinkedIn Skills（官方 API · 个人号）
 
-LinkedIn **个人号**无官方发帖 API。本技能封装 **[frizynn/linkedin-cli](https://github.com/frizynn/linkedin-cli)**：
+## 流程原则
 
-- **认证**：从本机 Chrome 读取 Cookie（`browser-cookie3`），或 `LINKEDIN_COOKIE_HEADER`
-- **发帖**：`linkedin post` → Feed「Start a post」→ Playwright 兜底（个人动态，非公司主页）
+1. **可以**打开浏览器到 OAuth **授权页**
+2. **禁止**脚本代填登录、禁止连跑 `check-login`
+3. 用户手动登录并授权后，**终端按 Enter 确认** 才保存令牌或发帖
 
-## 风控（必读）
+## 配置
 
-LinkedIn 对**登录检测、API 探测、浏览器自动化**均敏感；**未发帖**也可能封号。
+见 [references/linkedin-api-setup.md](./references/linkedin-api-setup.md)
 
-- **默认关闭**：所有 `linkedin:*` 须先设 `LINKEDIN_ALLOW_AUTOMATION=true` 且**人工**在终端执行
-- **禁止** Agent 连续跑 `check-login` / `login` / `publish`
-- 两次操作间隔建议 **≥10 分钟**；测试也只跑**一次** check-login
-- 默认只生成 `D:/test/hermes/文章/LinkedIn/` 文稿，人工发布
-
-## 前置
+## 命令
 
 ```powershell
-npm run tool:install
-# 登录：你自己在 Chrome 打开 linkedin.com 登录（脚本不会代开浏览器）
-# 检测：仅一次，且须 OVERSEAS_ALLOW_AUTOMATION=true
 $env:OVERSEAS_ALLOW_AUTOMATION = "true"
+npm run linkedin:login
 npm run linkedin:check-login
-```
-
-Cookie 等同密码，勿提交 Git。详见 `references/overseas-automation-rules.md`。
-
-## 技能边界
-
-```powershell
-node skills/linkedin/scripts/cli.mjs <command>
-```
-
-| 子技能 | 命令 | 功能 |
-|--------|------|------|
-| li-auth | `login` / `check-login` | Chrome 登录 + `linkedin auth-status` |
-| li-publish | `publish` | 个人 Feed 文本帖 |
-
-## 发布
-
-```powershell
 npm run linkedin:publish -- --file "D:/test/hermes/文章/LinkedIn/post.md"
-npm run linkedin:publish -- --text "Your post" --visibility public
 ```
 
-文稿归档：`D:/test/hermes/文章/LinkedIn/`
+## 公司主页
 
-## 公司主页（预留）
-
-公司号发帖入口、工具链与个人号不同，**尚未接入**。见 [references/company-page.md](./references/company-page.md)。
-
-## 风控
-
-LinkedIn 对自动化敏感；默认建议低频发布或只出稿。勿用测试文案批量发帖。
+预留 `w_organization_social`，见 [references/company-page.md](./references/company-page.md)

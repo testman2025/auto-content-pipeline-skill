@@ -1,6 +1,18 @@
 # Bug 修复记录
 
-## 2026-06-29 — LinkedIn 账号因自动化检测连触风控（测试过快）
+## 2026-06-29 — LinkedIn 改为官方 OAuth Posts API
+
+**变更**：弃用 frizynn/linkedin-cli（Cookie + Playwright），改用 LinkedIn 开发者 **OAuth + `/rest/posts`**。
+
+**交互**：
+- 可打开浏览器到 OAuth 授权页；**禁止**代填登录
+- 用户手动授权后，终端 **按 Enter 确认** 再存令牌或发帖
+- `check-login` / `publish` 前均有确认步骤
+
+**配置**：`LINKEDIN_CLIENT_ID` / `LINKEDIN_CLIENT_SECRET`，见 `skills/linkedin/references/linkedin-api-setup.md`。
+
+---
+
 
 **现象**：Agent 在短时间内连续执行 `linkedin:check-login`、打开 Chrome/MCP 浏览器访问 linkedin.com，账号被平台限制或封禁。
 

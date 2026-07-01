@@ -1,21 +1,18 @@
 #!/usr/bin/env node
 /**
- * LinkedIn 个人号 CLI — 封装 frizynn/linkedin-cli（tool/linkedin-cli）
- * 公司主页发布预留，见 references/company-page.md
+ * LinkedIn 个人号 — 官方 OAuth + Posts API（非浏览器爬取）
+ * 公司主页预留见 references/company-page.md
  */
 import { existsSync, readFileSync } from 'fs';
-import {
-  ensureLinkedInCliInstalled,
-  linkedinConfigPath,
-  runLinkedInCli,
-} from '../../../scripts/lib/linkedin-cli.mjs';
-import {
-  printManualLoginSteps,
-  requireOverseasConsent,
-} from '../../../scripts/lib/overseas-guard.mjs';
+import { runOAuthLogin } from './lib/oauth.mjs';
+import { saveToken, loadToken } from './lib/token-store.mjs';
+import { checkSessionOnce, createTextPost, fetchMemberProfile } from './lib/rest-api.mjs';
+import { waitForUserConfirm } from './lib/user-confirm.mjs';
+import { linkedInDataDir } from './lib/paths.mjs';
+import { requireOverseasConsent } from '../../../scripts/lib/overseas-guard.mjs';
 
 function parseArgs(argv) {
-  const opts = { visibility: 'connections' };
+  const opts = { visibility: 'public' };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--text' || a === '-t') opts.text = argv[++i];
@@ -30,35 +27,42 @@ function parseArgs(argv) {
 function assertPersonalAccountMode() {
   const mode = (process.env.LINKEDIN_ACCOUNT_TYPE || 'personal').toLowerCase();
   if (mode === 'company') {
-    console.error(
-      '❌ 公司主页发布尚未接入。请将 user-profile 中 LinkedIn 账号类型设为 personal，或见 skills/linkedin/references/company-page.md'
-    );
+    console.error('❌ 公司主页 API 尚未接入，见 references/company-page.md');
     process.exit(1);
   }
 }
 
-function cmdLogin() {
+async function cmdLogin() {
   assertPersonalAccountMode();
-  ensureLinkedInCliInstalled();
-
-  console.log('LinkedIn 个人号 — 登录说明（本命令不会自动打开浏览器）\n');
-  printManualLoginSteps('linkedin', 'https://www.linkedin.com/login');
-  console.log('');
-  console.log('Cookie 说明：');
-  console.log('  • linkedin-cli 从你本机已登录的 Chrome 读取 Cookie');
-  console.log('  • 勿将 Cookie 写入 Git；可选 LINKEDIN_COOKIE_HEADER');
-  console.log('');
-  console.log('登录完成后，自行执行一次（勿连点）：');
-  console.log('  $env:OVERSEAS_ALLOW_AUTOMATION="true"; npm run linkedin:check-login');
+  const token = await runOAuthLogin();
+  let profile = null;
+  try {
+    profile = await fetchMemberProfile(token.accessToken);
+  } catch (err) {
+    console.warn('获取 userinfo 失败（令牌已保存）:', err.message);
+  }
+  saveToken({ ...token, profile });
+  console.log('\n✅ 令牌已保存到:', linkedInDataDir());
+  if (profile?.name) {
+    console.log(`   身份: ${profile.name} (${profile.personUrn})`);
+  }
+  console.log('\n下一步（单次）: npm run linkedin:check-login');
 }
 
-function cmdCheckLogin() {
+async function cmdCheckLogin() {
   assertPersonalAccountMode();
-  const r = runLinkedInCli(['auth-status'], { allowFail: true });
-  process.exit(r.status === 0 ? 0 : 1);
+  await waitForUserConfirm('将调用一次 LinkedIn userinfo 检查登录态。确认后按 Enter');
+  try {
+    const result = await checkSessionOnce();
+    console.log(JSON.stringify({ ok: true, loggedIn: result.loggedIn, profile: result.profile }, null, 2));
+    process.exit(0);
+  } catch (err) {
+    console.error(JSON.stringify({ ok: false, loggedIn: false, error: err.message }, null, 2));
+    process.exit(1);
+  }
 }
 
-function cmdPublish(argv) {
+async function cmdPublish(argv) {
   assertPersonalAccountMode();
   const { text, file, visibility } = parseArgs(argv);
   let content = text;
@@ -70,54 +74,55 @@ function cmdPublish(argv) {
     content = readFileSync(file, 'utf8');
   }
   if (!content.trim()) {
-    console.error('用法: cli.mjs publish --text "帖子内容" 或 --file article.md [--visibility public|connections]');
+    console.error('用法: publish --text "..." 或 --file article.md [--visibility public|connections]');
     process.exit(1);
   }
-
   if (!['connections', 'public'].includes(visibility)) {
-    console.error('--visibility 仅支持 connections 或 public');
+    console.error('--visibility 仅支持 public 或 connections');
+    process.exit(1);
+  }
+  if (!loadToken()?.accessToken) {
+    console.error('未登录。请先: npm run linkedin:login');
     process.exit(1);
   }
 
-  console.log(`发布目标: 个人号 Feed | 可见性: ${visibility}`);
-  runLinkedInCli(['post', content, '--visibility', visibility]);
-  console.log('✅ LinkedIn 个人帖已提交（linkedin-cli）');
+  const preview = content.length > 120 ? `${content.slice(0, 120)}…` : content;
+  console.log(`\n即将通过 **官方 Posts API** 发布个人动态`);
+  console.log(`可见性: ${visibility}`);
+  console.log(`预览: ${preview}\n`);
+  await waitForUserConfirm('确认内容无误且已在 LinkedIn 开发者应用开通 w_member_social 后，按 Enter 发布');
+
+  const result = await createTextPost(content, visibility);
+  console.log('✅ 发布成功');
+  console.log(JSON.stringify(result, null, 2));
 }
 
 const [command, ...rest] = process.argv.slice(2);
 
 if (!command) {
-  console.log(`LinkedIn CLI（个人号 · frizynn/linkedin-cli）
+  console.log(`LinkedIn CLI（个人号 · 官方 OAuth + Posts API）
 
   login | check-login | publish --text "..." | publish --file path.md
 
-  默认关闭自动化。须 OVERSEAS_ALLOW_AUTOMATION=true 才执行 login/check-login/publish。
-  login 仅打印说明，不会打开浏览器。详见 references/overseas-automation-rules.md
+  流程：打开授权页 → 你手动登录授权 → 终端按 Enter 确认 → 再存令牌/发帖
+  配置：LINKEDIN_CLIENT_ID / LINKEDIN_CLIENT_SECRET（Hermes .env）
+  文档：skills/linkedin/references/linkedin-api-setup.md
 
-环境变量:
-  OVERSEAS_ALLOW_AUTOMATION   海外自动化总开关
-  LINKEDIN_ALLOW_AUTOMATION   同义（兼容）
-  LINKEDIN_CLI_ROOT           tool/linkedin-cli 路径
-  LINKEDIN_CONFIG             默认 skills/linkedin/config.yaml
-  LINKEDIN_BROWSER            读 Cookie 的浏览器（默认 chrome）
-  LINKEDIN_COOKIE_HEADER      完整 Cookie 头
-  LINKEDIN_ACCOUNT_TYPE       personal（默认）| company（预留）
+  须 OVERSEAS_ALLOW_AUTOMATION=true 执行命令（防 Agent 误触）
 
-npm: linkedin:login | linkedin:check-login | linkedin:publish
-
-配置: ${linkedinConfigPath}`);
+npm: linkedin:login | linkedin:check-login | linkedin:publish`);
   process.exit(0);
 }
 
 if (command === 'login') {
   requireOverseasConsent('linkedin', 'login');
-  cmdLogin();
+  await cmdLogin();
 } else if (command === 'check-login') {
   requireOverseasConsent('linkedin', 'check-login');
-  cmdCheckLogin();
+  await cmdCheckLogin();
 } else if (command === 'publish') {
   requireOverseasConsent('linkedin', 'publish');
-  cmdPublish(rest);
+  await cmdPublish(rest);
 } else {
   console.error('未知命令:', command);
   process.exit(1);
