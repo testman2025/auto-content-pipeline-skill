@@ -3,6 +3,7 @@ import { join } from 'path';
 import { spawnSync } from 'child_process';
 import { parseVtt, formatAssTime } from '../../../douyin/scripts/lib/vtt-to-scenes.mjs';
 import { toFancyAssText } from '../../../douyin/scripts/lib/fancy-text.mjs';
+import { cuesForDisplay } from '../../../douyin/scripts/lib/display-text.mjs';
 import { splitAndWrapCues, fontSizeForText } from './text-wrap-en.mjs';
 import { trimSentencesToDuration } from './duration-limit.mjs';
 
@@ -65,7 +66,9 @@ export function synthesizeTts(opts) {
 }
 
 function prepareDisplayCues(cues) {
-  return splitAndWrapCues(cues, (line, baseFs) => toFancyAssText(line, baseFs));
+  return splitAndWrapCues(cuesForDisplay(cues), (line, baseFs) =>
+    toFancyAssText(line, baseFs)
+  );
 }
 
 function buildAssEn(cues) {

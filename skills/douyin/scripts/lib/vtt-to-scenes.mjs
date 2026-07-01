@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import { toFancyAssText } from './fancy-text.mjs';
 import { splitAndWrapCues, fontSizeForText } from './text-wrap.mjs';
+import { cuesForDisplay } from './display-text.mjs';
 
 /**
  * @param {string} vttPath
@@ -40,7 +41,9 @@ export function parseVtt(vttPath) {
  * @param {{ start: number, end: number, text: string }[]} cues
  */
 export function prepareDisplayCues(cues) {
-  return splitAndWrapCues(cues, (line, baseFs) => toFancyAssText(line, baseFs));
+  return splitAndWrapCues(cuesForDisplay(cues), (line, baseFs) =>
+    toFancyAssText(line, baseFs)
+  );
 }
 
 /**
