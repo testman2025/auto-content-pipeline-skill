@@ -7,7 +7,7 @@ clone 本仓库即可用，由 **auto-content-pipeline 老兵 Agent** 在 Step 5
 | `xiaohongshu/` | 小红书 Bridge + 发布子技能 |
 | `youtube/` | YouTube Studio / sau |
 | `linkedin/` | LinkedIn 浏览器发帖 |
-| `tiktok/` | TikTok 海外 sau |
+| `tiktok/` | TikTok 花字视频（pipeline:tiktok）+ sau 发布 |
 | `x/` | X/Twitter（baoyu-post-to-x 封装） |
 | `reddit/` | Reddit（1146345502/reddit-skills 扩展桥） |
 | `zhihu/` | 知乎专栏（MD→HTML + pyzhihu API） |

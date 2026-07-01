@@ -339,6 +339,7 @@ humanizer-zh 处理规则:
 |------|------|------|
 | **小红书正文卡片** | **pipeline:xhs** | 配图 MD → PNG + manifest，`professional` 主题，**禁止 tokenware AI** |
 | **抖音竖版视频** | **pipeline:douyin** | 口播 MD → 黑底花字 9:16 MP4 + TTS（Edge TTS），**禁止 tokenware AI 做正文** |
+| **TikTok 竖版视频** | **pipeline:tiktok** | 英文口播 MD → 花字 9:16 MP4 + 英文 TTS，**≤90 秒** |
 | 知乎封面 | tokenware-image | 1792×1024 |
 | 公众号封面 | tokenware-image | 1792×1024 |
 | 抖音/YouTube 封面 | tokenware-image | 1792×1024 |
@@ -383,6 +384,18 @@ npm run pipeline:douyin -- -File "D:/test/hermes/文章/抖音/{slug}.md"
 ```
 
 输出：`D:/test/hermes/视频/{slug}/` + `{timestamp}_{slug}.mp4` + `manifest.json`。
+
+#### TikTok（pipeline:tiktok）
+
+加载 `skills/tiktok/SKILL.md`。
+
+英文口播稿放 `D:/test/hermes/文章/TikTok/{slug}.md`，自动剥离 `[Scene:]` / `[画面:]`。超长稿裁切到约 **90 秒**；默认英文音色 `us-male`。
+
+```powershell
+npm run pipeline:tiktok -- -File "D:/test/hermes/文章/TikTok/{slug}.md"
+```
+
+输出：`D:/test/hermes/视频/TikTok/{slug}/` + `manifest.json`。
 
 #### 其他平台（tokenware-image）
 

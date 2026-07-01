@@ -34,8 +34,25 @@
 - 默认语言: English / 中文
 
 ## TikTok 配置（启用时填写）
+- TTS 音色: us-male
+- TTS 语速: +50%
+- 视频时长上限: 90
+- 默认标签: #fyp #TikTokShop
+- 视频样式: fancy-text-black（黑底花字，同抖音）
+- 一键出片: `npm run pipeline:tiktok -- -File "D:/test/hermes/文章/TikTok/{slug}.md"`
 - sau 账号名: default
-- 默认标签: #fyp
+
+### 英文 TTS 预设（`npm run tiktok:voices`）
+
+| 预设 | voice | 说明 |
+|------|-------|------|
+| us-male（默认） | en-US-AndrewNeural | 美式男声 |
+| us-female | en-US-JennyNeural | 美式女声 |
+| us-male-casual | en-US-BrianNeural | 美式休闲男声 |
+| us-female-warm | en-US-AriaNeural | 美式自信女声 |
+| uk-male / uk-female | en-GB-* | 英式 |
+
+> 口播稿请写**英文**；超长稿会自动裁切到约 **90 秒（1 分半）** 以内。
 
 ## X (Twitter) 配置（启用时填写）
 - 账号 handle: (@username)
