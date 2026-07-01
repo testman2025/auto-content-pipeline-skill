@@ -139,19 +139,56 @@ def convert_markdown_to_html(md_content: str) -> str:
     return html + tags_html
 
 
+def _extra_theme_dirs() -> List[Path]:
+    """额外主题目录：流水线 assets/xhs-themes、环境变量 XHS_THEMES_DIR。"""
+    dirs: List[Path] = []
+    env_dir = os.environ.get('XHS_THEMES_DIR', '').strip()
+    if env_dir:
+        dirs.append(Path(env_dir))
+    # 相对 Auto-Redbook 根目录的上级流水线 assets（tool/Auto-Redbook-Skills → repo/assets/xhs-themes）
+    pipeline_themes = SCRIPT_DIR.parent.parent / 'assets' / 'xhs-themes'
+    if pipeline_themes.exists():
+        dirs.append(pipeline_themes)
+    # 常见 Hermes 流水线路径
+    hermes_themes = Path(r'D:\test\agent\hermes\auto-content-pipeline-skill\assets\xhs-themes')
+    if hermes_themes.exists():
+        dirs.append(hermes_themes)
+    return dirs
+
+
+def resolve_theme_file(theme: str) -> Optional[Path]:
+    """按名称查找主题 CSS（内置 themes/ 优先，其次自定义目录）。"""
+    builtin = THEMES_DIR / f"{theme}.css"
+    if builtin.exists():
+        return builtin
+    for extra in _extra_theme_dirs():
+        candidate = extra / f"{theme}.css"
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def list_all_themes() -> List[str]:
+    """合并内置与自定义主题名（去重、排序）。"""
+    names = set(AVAILABLE_THEMES)
+    for extra in _extra_theme_dirs():
+        if extra.exists():
+            for css in extra.glob('*.css'):
+                names.add(css.stem)
+    return sorted(names)
+
+
 def load_theme_css(theme: str) -> str:
     """加载主题 CSS 样式"""
-    theme_file = THEMES_DIR / f"{theme}.css"
-    if theme_file.exists():
+    theme_file = resolve_theme_file(theme)
+    if theme_file:
         with open(theme_file, 'r', encoding='utf-8') as f:
             return f.read()
-    else:
-        # 如果主题不存在，使用默认主题
-        default_file = THEMES_DIR / "default.css"
-        if default_file.exists():
-            with open(default_file, 'r', encoding='utf-8') as f:
-                return f.read()
-        return ""
+    default_file = THEMES_DIR / "default.css"
+    if default_file.exists():
+        with open(default_file, 'r', encoding='utf-8') as f:
+            return f.read()
+    return ""
 
 
 def generate_cover_html(metadata: dict, theme: str, width: int, height: int) -> str:
@@ -181,6 +218,7 @@ def generate_cover_html(metadata: dict, theme: str, width: int, height: int) -> 
         'neo-brutalism': 'linear-gradient(180deg, #FF4757 0%, #FECA57 100%)',
         'botanical': 'linear-gradient(180deg, #4A7C59 0%, #8FBC8F 100%)',
         'professional': 'linear-gradient(180deg, #2563EB 0%, #3B82F6 100%)',
+        'hermes-crossborder': 'linear-gradient(180deg, #0f172a 0%, #1e3a8a 100%)',
         'retro': 'linear-gradient(180deg, #D35400 0%, #F39C12 100%)',
         'terminal': 'linear-gradient(180deg, #0D1117 0%, #21262D 100%)',
         'sketch': 'linear-gradient(180deg, #555555 0%, #999999 100%)'
@@ -194,6 +232,7 @@ def generate_cover_html(metadata: dict, theme: str, width: int, height: int) -> 
         'neo-brutalism': 'linear-gradient(180deg, #000000 0%, #FF4757 100%)',
         'botanical': 'linear-gradient(180deg, #1F2937 0%, #4A7C59 100%)',
         'professional': 'linear-gradient(180deg, #1E3A8A 0%, #2563EB 100%)',
+        'hermes-crossborder': 'linear-gradient(180deg, #f97316 0%, #1e3a8a 100%)',
         'retro': 'linear-gradient(180deg, #8B4513 0%, #D35400 100%)',
         'terminal': 'linear-gradient(180deg, #39D353 0%, #58A6FF 100%)',
         'sketch': 'linear-gradient(180deg, #111827 0%, #6B7280 100%)',
@@ -302,6 +341,7 @@ def generate_card_html(content: str, theme: str, page_number: int = 1,
         'neo-brutalism': 'linear-gradient(135deg, #FF4757 0%, #FECA57 100%)',
         'botanical': 'linear-gradient(135deg, #4A7C59 0%, #8FBC8F 100%)',
         'professional': 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)',
+        'hermes-crossborder': 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)',
         'retro': 'linear-gradient(135deg, #D35400 0%, #F39C12 100%)',
         'terminal': 'linear-gradient(135deg, #0D1117 0%, #161B22 100%)',
         'sketch': 'linear-gradient(135deg, #555555 0%, #888888 100%)'
@@ -815,9 +855,8 @@ def main():
     )
     parser.add_argument(
         '--theme', '-t',
-        choices=AVAILABLE_THEMES,
         default='sketch',
-        help='排版主题（默认: sketch）'
+        help='排版主题（内置 8 个 + assets/xhs-themes 自定义，默认: sketch）'
     )
     parser.add_argument(
         '--mode', '-m',

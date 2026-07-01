@@ -58,6 +58,14 @@ if ((Test-Path $patchRender) -and (Test-Path $autoRedbook)) {
   Copy-Item $patchRender (Join-Path $autoRedbook "scripts/render_xhs.py") -Force
   Write-Host "[patch] Auto-Redbook render_xhs.py (heading orphan fix)"
 }
+$customThemes = Join-Path $repo "assets/xhs-themes"
+$toolThemes = Join-Path $autoRedbook "assets/themes"
+if ((Test-Path $customThemes) -and (Test-Path $toolThemes)) {
+  Get-ChildItem $customThemes -Filter "*.css" | ForEach-Object {
+    Copy-Item $_.FullName (Join-Path $toolThemes $_.Name) -Force
+    Write-Host "[theme] $($_.Name) -> Auto-Redbook assets/themes/"
+  }
+}
 if (Test-Path (Join-Path $autoRedbook "requirements.txt")) {
   $python = if (Test-Path "D:\dev\python3\python.exe") { "D:\dev\python3\python.exe" } else { "python" }
   Write-Host "[pip] Auto-Redbook-Skills (markdown pyyaml playwright)"

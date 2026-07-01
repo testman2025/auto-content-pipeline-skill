@@ -20,7 +20,7 @@ metadata:
 
 | 项 | 值 |
 |----|-----|
-| 主题 | `professional`（商务蓝，专业干练） |
+| 主题 | `professional`（商务蓝，专业干练）；见下方 **8 内置主题** |
 | 分页 | `auto-split`（短章节合并 + **按内容双向缩放**填满卡片） |
 | 尺寸 | 1080×1440（3:4） |
 | 工具路径 | `tool/Auto-Redbook-Skills` 或 `D:/test/tool/Auto-Redbook-Skills` |
@@ -66,6 +66,25 @@ date: "2026-06-29"
 | **分隔符 `---`** | 逻辑分节用；渲染时会**自动合并短节**填满单卡，不必刻意少写 |
 
 **要点**：`---` 是写作时的逻辑章节，不是「一节必一页」。短章节会合并到同一张卡片；单节超过一卡高度时才会拆页，且**标题不会单独留在上一张末尾**。
+
+## 内置主题（共 8 个）
+
+| 参数值 | 名称 | 风格 | 跨境干货号 |
+|--------|------|------|------------|
+| `professional` | 专业商务 | 蓝框白底，简洁稳重 | **推荐** |
+| `default` | 默认简约 | 浅灰底 + 靛紫标题 | 可用 |
+| `sketch` | 手绘素描 | 米纸网格 + 铅笔风 | 偏生活向 |
+| `terminal` | 终端命令行 | 深色背景 + 绿色高亮 | 技术向 |
+| `retro` | 复古怀旧 | 暖橙边框 | 偏生活方式 |
+| `botanical` | 植物园自然 | 绿色自然风 | 美妆/生活 |
+| `playful-geometric` | 活泼几何 | Memphis 紫粉渐变 | 偏年轻向 |
+| `neo-brutalism` | 新粗野主义 | 粗框强对比红黄 | 偏设计向 |
+
+预览样例：`D:/test/hermes/图片/小红书/preview-20260629/themes-preview/{主题名}/`
+
+## 自定义主题
+
+**可以。** 主题 = CSS 文件，控制卡片内层排版。在 `assets/xhs-themes/` 新建 `my-brand.css`，`npm run tool:install` 同步后 `-Theme my-brand` 即可。示例：`hermes-crossborder`（海军蓝 + 橙）。详见 `assets/xhs-themes/README.md`。
 
 ## 命令
 
