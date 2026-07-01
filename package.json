@@ -17,6 +17,7 @@
     "xhs:card-render": "powershell -ExecutionPolicy Bypass -File scripts/xhs-card-render.ps1",
     "pipeline:xhs": "powershell -ExecutionPolicy Bypass -File scripts/pipeline-xhs.ps1",
     "douyin:create-video": "node skills/douyin/scripts/cli.mjs create-video",
+    "douyin:voices": "node skills/douyin/scripts/cli.mjs list-voices",
     "pipeline:douyin": "powershell -ExecutionPolicy Bypass -File scripts/pipeline-douyin.ps1",
     "douyin:install": "powershell -ExecutionPolicy Bypass -File scripts/install-douyin-video.ps1",
     "douyin:login": "npx @panda-video-automation/pva douyin login",

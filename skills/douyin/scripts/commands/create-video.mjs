@@ -4,6 +4,7 @@ import { hermesRoot } from '../lib/paths.mjs';
 import { loadDouyinProfile } from '../lib/profile.mjs';
 import { parseDouyinScript } from '../lib/script-parse.mjs';
 import { createDouyinTextVideo } from '../lib/video-create.mjs';
+import { resolveVoice } from '../lib/voices.mjs';
 
 function stamp() {
   const d = new Date();
@@ -18,12 +19,14 @@ export async function cmdCreateVideo(argv) {
   let file = '';
   let slug = '';
   let outDir = '';
+  let voiceOverride = '';
 
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i];
     if (a === '--file' || a === '-f') file = argv[++i] || '';
     else if (a === '--slug' || a === '-s') slug = argv[++i] || '';
     else if (a === '--out' || a === '-o') outDir = argv[++i] || '';
+    else if (a === '--voice' || a === '-v') voiceOverride = argv[++i] || '';
   }
 
   const articleDir = join(hermesRoot, '文章', '抖音');
@@ -44,6 +47,7 @@ export async function cmdCreateVideo(argv) {
   }
 
   const profile = loadDouyinProfile();
+  const voiceResolved = resolveVoice(voiceOverride || profile.voiceInput || profile.voice);
   const raw = readFileSync(file, 'utf8');
   const parsed = parseDouyinScript(raw);
 
@@ -61,12 +65,12 @@ export async function cmdCreateVideo(argv) {
   console.log('[douyin:create-video] file:', file);
   console.log('[douyin:create-video] title:', parsed.title);
   console.log('[douyin:create-video] chars:', parsed.plainText.length);
-  console.log('[douyin:create-video] voice:', profile.voice);
+  console.log('[douyin:create-video] voice:', voiceResolved.voiceId, `(${voiceResolved.label})`);
   console.log('[douyin:create-video] tts rate:', profile.ttsRate);
 
   const result = await createDouyinTextVideo({
     text: parsed.plainText,
-    voice: profile.voice,
+    voice: voiceResolved.voiceId,
     outputDir: videoDir,
     basename: videoBasename,
     ttsRate: profile.ttsRate,
@@ -81,7 +85,9 @@ export async function cmdCreateVideo(argv) {
     voicePath: result.voicePath,
     duration: result.duration,
     cueCount: result.cueCount,
-    voice: profile.voice,
+    voice: voiceResolved.voiceId,
+    voicePreset: voiceResolved.presetId,
+    voiceLabel: voiceResolved.label,
     style: profile.style,
     ttsRate: profile.ttsRate,
     renderer: result.renderer,

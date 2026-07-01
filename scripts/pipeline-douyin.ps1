@@ -2,6 +2,7 @@ param(
   [string]$File = "",
   [string]$Slug = "",
   [string]$Out = "",
+  [string]$Voice = "",
   [string]$HermesRoot = ""
 )
 
@@ -64,6 +65,9 @@ Write-Host "[pipeline:douyin] md: $File"
 Write-Host "[pipeline:douyin] out: $Out"
 
 $cliArgs = @("skills/douyin/scripts/cli.mjs", "create-video", "--file", $File, "--out", $Out)
+if (-not [string]::IsNullOrWhiteSpace($Voice)) {
+  $cliArgs += @("--voice", $Voice)
+}
 Push-Location $repo
 try {
   node @cliArgs

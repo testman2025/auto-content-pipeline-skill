@@ -106,10 +106,23 @@ npm run pipeline:douyin -- -Slug 20260629_独立站TK双店SOP_抖音
 
 输出：`D:/test/hermes/视频/{slug}/` + `manifest.json`
 
-默认 **TTS 语速 +50%**，纯口播无 BGM。可在 `user-profile.md` 的 `## 抖音配置` 调整：
+默认 **国内男声** `cn-male`（`zh-CN-YunxiNeural`），**TTS 语速 +50%**，纯口播无 BGM。
+
+```powershell
+npm run douyin:voices
+```
+
+在 `user-profile.md` 的 `## 抖音配置` 调整：
 
 ```markdown
-- TTS 语速: +50%        # 或 +75% / +100%（2倍速）
+- TTS 音色: cn-female      # 国内女声；海外男 us-male / 海外女 us-female 等
+- TTS 语速: +50%           # 或 +75% / +100%（2倍速）
+```
+
+单次覆盖音色：
+
+```powershell
+npm run douyin:create-video -- --voice cn-female -f "D:/test/hermes/文章/抖音/xxx.md"
 ```
 
 发布（PVA，需先登录）：

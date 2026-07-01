@@ -74,11 +74,30 @@
 - 一键出图: `npm run pipeline:xhs -- -Slug {slug}`
 
 ## 抖音配置（启用时填写）
-- TTS 音色: zh-CN-YunxiNeural
+- TTS 音色: cn-male
 - TTS 语速: +50%
 - 默认话题: #跨境电商 #TikTokShop
 - 视频样式: fancy-text-black（黑底花字）
 - 一键出片: `npm run pipeline:douyin -- -Slug {slug}`
+
+### TTS 音色预设（`npm run douyin:voices` 查看完整列表）
+
+| 预设 ID | 说明 | Edge voice |
+|---------|------|------------|
+| cn-male | 国内男声（默认） | zh-CN-YunxiNeural |
+| cn-male-pro | 国内男声·专业 | zh-CN-YunyangNeural |
+| cn-male-passion | 国内男声·激情 | zh-CN-YunjianNeural |
+| cn-female | 国内女声 | zh-CN-XiaoxiaoNeural |
+| cn-female-lively | 国内女声·活泼 | zh-CN-XiaoyiNeural |
+| us-male | 海外男声·美式 | en-US-AndrewNeural |
+| us-female | 海外女声·美式 | en-US-JennyNeural |
+| us-male-casual | 海外男声·美式休闲 | en-US-BrianNeural |
+| us-female-warm | 海外女声·美式自信 | en-US-AriaNeural |
+| uk-male | 海外男声·英式 | en-GB-RyanNeural |
+| uk-female | 海外女声·英式 | en-GB-SoniaNeural |
+
+> 中文口播稿请用 `cn-*` 预设；英文稿用 `us-*` / `uk-*`。也可直接写完整 voice 名。
+> 单次覆盖：`npm run douyin:create-video -- --voice cn-female -f "D:/path/script.md"`
 
 ## 平台风控提示（2026-06-30 实测）
 
