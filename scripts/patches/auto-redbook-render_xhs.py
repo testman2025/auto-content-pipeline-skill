@@ -69,6 +69,12 @@ AVAILABLE_THEMES = [
 # 分页模式
 PAGING_MODES = ['separator', 'auto-fit', 'auto-split', 'dynamic']
 
+# auto-split：卡片内容区目标填充率，低于此值时尽量合并下一章节（避免一页太空）
+MIN_CARD_FILL_RATIO = 0.55
+# auto-split 渲染：内容偏空时放大字号填满卡片（仅放大、不缩小）
+TARGET_CARD_FILL_RATIO = 0.86
+MAX_CARD_SCALE_UP = 1.22
+
 
 def parse_markdown_file(file_path: str) -> dict:
     """解析 Markdown 文件，提取 YAML 头部和正文内容"""
@@ -302,7 +308,7 @@ def generate_card_html(content: str, theme: str, page_number: int = 1,
     bg = theme_backgrounds.get(theme, theme_backgrounds['default'])
     
     # 根据模式设置不同的容器样式
-    if mode == 'auto-fit':
+    if mode in ('auto-fit', 'auto-split'):
         container_style = f'''
             width: {width}px;
             height: {height}px;
@@ -498,6 +504,44 @@ async def render_html_to_image(html_content: str, output_path: str,
                 }''')
                 await page.wait_for_timeout(100)
                 actual_height = height
+
+            elif mode == 'auto-split':
+                # 内容偏空时适度放大，让单卡更饱满（分页测量仍用原始高度）
+                await page.evaluate(
+                    '''([targetFill, maxScaleUp]) => {
+                    const viewportContent = document.querySelector('.card-content');
+                    const scaleEl = document.querySelector('.card-content-scale');
+                    if (!viewportContent || !scaleEl) return;
+
+                    scaleEl.style.transform = 'none';
+                    scaleEl.style.width = '';
+                    scaleEl.style.height = '';
+
+                    const availableWidth = viewportContent.clientWidth;
+                    const availableHeight = viewportContent.clientHeight;
+                    const contentWidth = Math.max(scaleEl.scrollWidth, scaleEl.getBoundingClientRect().width);
+                    const contentHeight = Math.max(scaleEl.scrollHeight, scaleEl.getBoundingClientRect().height);
+
+                    if (!contentWidth || !contentHeight || !availableWidth || !availableHeight) return;
+
+                    let scale = 1;
+
+                    if (contentHeight < availableHeight * targetFill) {
+                        scale = Math.min(
+                            maxScaleUp,
+                            (availableHeight * targetFill) / contentHeight,
+                            availableWidth / contentWidth
+                        );
+                    }
+
+                    scaleEl.style.width = (availableWidth / scale) + 'px';
+                    scaleEl.style.transformOrigin = 'top left';
+                    scaleEl.style.transform = `scale(${scale})`;
+                }''',
+                    [TARGET_CARD_FILL_RATIO, MAX_CARD_SCALE_UP],
+                )
+                await page.wait_for_timeout(100)
+                actual_height = height
                 
             elif mode == 'dynamic':
                 # 动态高度模式：根据内容调整图片高度
@@ -591,12 +635,13 @@ async def auto_split_section(body: str, theme: str, width: int, height: int,
 
 async def auto_split_content(body: str, theme: str, width: int, height: int,
                              dpr: int = 2) -> List[str]:
-    """自动切分内容：先按 --- 分章节，再在章节内按高度分页。"""
+    """自动切分内容：按 --- 识别章节，短章节合并填满卡片，过长章节内二次分页。"""
     sections = split_content_by_separator(body)
     if not sections:
         sections = [body.strip()] if body.strip() else []
 
     available_height = height - 220  # 50*2 padding + 60*2 inner padding
+    min_fill_height = int(available_height * MIN_CARD_FILL_RATIO)
     cards: List[str] = []
 
     async with async_playwright() as p:
@@ -607,11 +652,64 @@ async def auto_split_content(body: str, theme: str, width: int, height: int,
         )
 
         try:
+            current = ""
+
             for section in sections:
-                section_cards = await auto_split_section(
-                    section, theme, width, height, page, available_height
+                section = section.strip()
+                if not section:
+                    continue
+
+                candidate = f"{current}\n\n{section}" if current else section
+                content_height = await _measure_content_height(
+                    page, candidate, theme, width, height
                 )
-                cards.extend(section_cards)
+
+                if content_height <= available_height:
+                    current = candidate
+                    continue
+
+                # 当前候选放不下：先落盘已累积内容
+                if current:
+                    cards.append(current)
+                    current = ""
+
+                section_height = await _measure_content_height(
+                    page, section, theme, width, height
+                )
+
+                if section_height <= available_height:
+                    current = section
+                else:
+                    section_cards = await auto_split_section(
+                        section, theme, width, height, page, available_height
+                    )
+                    cards.extend(section_cards)
+
+            # 末卡若过空，尝试与上一张合并（仅当合并后仍不超高）
+            if current:
+                if cards:
+                    merged = f"{cards[-1]}\n\n{current}"
+                    merged_height = await _measure_content_height(
+                        page, merged, theme, width, height
+                    )
+                    if merged_height <= available_height:
+                        cards[-1] = merged
+                        current = ""
+                if current:
+                    cards.append(current)
+
+            # 末卡过空时，向前合并（倒数第二张）
+            if len(cards) >= 2:
+                last_h = await _measure_content_height(
+                    page, cards[-1], theme, width, height
+                )
+                if last_h < min_fill_height:
+                    merged = f"{cards[-2]}\n\n{cards[-1]}"
+                    merged_height = await _measure_content_height(
+                        page, merged, theme, width, height
+                    )
+                    if merged_height <= available_height:
+                        cards = cards[:-2] + [merged]
         finally:
             await browser.close()
 
