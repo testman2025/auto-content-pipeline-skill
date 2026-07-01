@@ -69,12 +69,11 @@ export function splitAndWrapCues(cues, fancyFn) {
     const text = cue.text.trim();
     if (text.length <= MAX_CHARS_PER_CUE) {
       const lines = wrapPlainLines(text);
-      const joined = lines.join('\\N');
-      const fs = fontSizeForText(joined);
+      const fs = fontSizeForText(lines.join(' '));
       out.push({
         ...cue,
-        text: joined,
-        fancyText: fancyFn(joined, fs),
+        text: lines.join('\n'),
+        fancyText: lines.map((l) => fancyFn(l, fontSizeForText(l))).join('\\N'),
       });
       continue;
     }
@@ -101,13 +100,11 @@ export function splitAndWrapCues(cues, fancyFn) {
     const span = (cue.end - cue.start) / total;
     parts.forEach((part, i) => {
       const lines = wrapPlainLines(part);
-      const joined = lines.join('\\N');
-      const fs = fontSizeForText(joined);
       out.push({
         start: cue.start + i * span,
         end: cue.start + (i + 1) * span,
-        text: joined,
-        fancyText: fancyFn(joined, fs),
+        text: lines.join('\n'),
+        fancyText: lines.map((l) => fancyFn(l, fontSizeForText(l))).join('\\N'),
       });
     });
   }

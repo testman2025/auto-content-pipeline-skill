@@ -18,6 +18,7 @@ export function toFancyAssText(text, baseFs = 84) {
   KEYWORD_RE.lastIndex = 0;
   while ((m = KEYWORD_RE.exec(text)) !== null) {
     const word = m[0];
+    if (m.index > 0 && text[m.index - 1] === '\\') continue;
     if (word.length < 2 && !/\d/.test(word)) continue;
     if (/^(的|了|是|在|和|与|或|就|也|都|而|但)$/u.test(word)) continue;
 

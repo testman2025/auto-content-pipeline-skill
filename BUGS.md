@@ -1,6 +1,14 @@
 # Bug 修复记录
 
-## 2026-07-01 — TikTok 花字视频创作 pipeline:tiktok
+## 2026-07-01 — TikTok 花字露出 ASS 标签乱码
+
+**现象**：英文字幕换行处出现 `{\b1\c&H00E5FF&\fs82}Nthen` 等乱码。
+
+**原因**：英文 `splitAndWrapCues` 先把多行拼成 `flow,\Nthen` 再整段做关键词高亮，`\N` 后的 `Nthen` 被误识别为单词并插入未闭合的 ASS 标签。
+
+**修复**：与抖音一致——**按行** `toFancyAssText` 后再用 `\\N` 拼接；`fancy-text.mjs` 跳过反斜杠后的误匹配。
+
+---
 
 **需求**：TikTok 视频创作与抖音相同（花字+TTS），英文配音，时长限制约 1 分半。
 
