@@ -71,9 +71,10 @@ PAGING_MODES = ['separator', 'auto-fit', 'auto-split', 'dynamic']
 
 # auto-split：卡片内容区目标填充率，低于此值时尽量合并下一章节（避免一页太空）
 MIN_CARD_FILL_RATIO = 0.55
-# auto-split 渲染：内容偏空时放大字号填满卡片（仅放大、不缩小）
-TARGET_CARD_FILL_RATIO = 0.86
-MAX_CARD_SCALE_UP = 1.22
+# auto-split 渲染：按内容量双向缩放，目标填满卡片（分页测量仍用原始高度）
+TARGET_CARD_FILL_RATIO = 0.92
+MAX_CARD_SCALE_UP = 1.35
+MIN_CARD_SCALE_DOWN = 0.88
 
 
 def parse_markdown_file(file_path: str) -> dict:
@@ -506,9 +507,9 @@ async def render_html_to_image(html_content: str, output_path: str,
                 actual_height = height
 
             elif mode == 'auto-split':
-                # 内容偏空时适度放大，让单卡更饱满（分页测量仍用原始高度）
+                # 按内容量双向缩放：偏空放大、偏多略缩小，目标填满 ~92% 高度
                 await page.evaluate(
-                    '''([targetFill, maxScaleUp]) => {
+                    '''([targetFill, maxScaleUp, minScaleDown]) => {
                     const viewportContent = document.querySelector('.card-content');
                     const scaleEl = document.querySelector('.card-content-scale');
                     if (!viewportContent || !scaleEl) return;
@@ -525,12 +526,19 @@ async def render_html_to_image(html_content: str, output_path: str,
                     if (!contentWidth || !contentHeight || !availableWidth || !availableHeight) return;
 
                     let scale = 1;
+                    const widthScale = availableWidth / contentWidth;
+                    const fillRatio = contentHeight / availableHeight;
 
-                    if (contentHeight < availableHeight * targetFill) {
+                    if (fillRatio < targetFill) {
                         scale = Math.min(
                             maxScaleUp,
                             (availableHeight * targetFill) / contentHeight,
-                            availableWidth / contentWidth
+                            widthScale
+                        );
+                    } else if (contentHeight > availableHeight) {
+                        scale = Math.max(
+                            minScaleDown,
+                            Math.min(widthScale, availableHeight / contentHeight)
                         );
                     }
 
@@ -538,7 +546,7 @@ async def render_html_to_image(html_content: str, output_path: str,
                     scaleEl.style.transformOrigin = 'top left';
                     scaleEl.style.transform = `scale(${scale})`;
                 }''',
-                    [TARGET_CARD_FILL_RATIO, MAX_CARD_SCALE_UP],
+                    [TARGET_CARD_FILL_RATIO, MAX_CARD_SCALE_UP, MIN_CARD_SCALE_DOWN],
                 )
                 await page.wait_for_timeout(100)
                 actual_height = height
