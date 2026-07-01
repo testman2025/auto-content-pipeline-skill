@@ -91,9 +91,21 @@ date: "2026-06-29"
 仓库根目录：
 
 ```powershell
+# 推荐：写稿后一键出图（自动解析 文章/小红书 → 图片/小红书）
+npm run pipeline:xhs -- -Slug "preview-20260629-tk-gmvmax"
+
+# 或指定 MD 路径
+npm run pipeline:xhs -- -File "D:/test/hermes/文章/小红书/xxx.md" -Theme professional
+```
+
+输出：`cover.png` + `card_*.png` + `manifest.json`（供 Step 5 发布取图路径）。
+
+底层命令（自定义 Out/Theme）：
+
+```powershell
 npm run xhs:card-render -- `
-  --file "D:/test/hermes/文章/小红书/xxx.md" `
-  --out "D:/test/hermes/图片/小红书/xxx"
+  -File "D:/test/hermes/文章/小红书/xxx.md" `
+  -Out "D:/test/hermes/图片/小红书/xxx"
 ```
 
 可选参数：`--theme professional`（默认）、`--mode auto-split`（默认）、`--mode separator`（严格按 `---` 一页一节）。

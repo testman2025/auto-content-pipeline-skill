@@ -68,6 +68,11 @@
 - 图片: `D:/test/hermes/图片/{平台}/`
 - 视频: `D:/test/hermes/视频/`
 
+## 小红书配图（启用小红书时填写）
+- 方案: xhs-card-render（Auto-Redbook，非 AI）
+- 默认主题: professional
+- 一键出图: `npm run pipeline:xhs -- -Slug {slug}`
+
 ## 平台风控提示（2026-06-30 实测）
 
 | 平台 | 自动发布 | 说明 |

@@ -133,7 +133,8 @@ auto-content-pipeline-skill/
 | `npm run check` | 依赖与 WECHAT_* / PVA 检查 |
 | `npm run tool:install` | clone tool/ 依赖 |
 | `npm run skills:register` | 注册 Hermes 技能 |
-| `npm run xhs:card-render -- -File ... -Out ...` | 小红书 MD→卡片图（非 AI） |
+| `npm run pipeline:xhs -- -Slug xxx` | 小红书写稿 MD → 卡片图（推荐） |
+| `npm run xhs:card-render -- -File ...` | 小红书出图（底层，可指定 Theme/Out） |
 
 ---
 

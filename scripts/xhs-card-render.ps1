@@ -1,4 +1,4 @@
-param(
+﻿param(
   [Parameter(Mandatory = $true)]
   [string]$File,
   [string]$Out = "",
@@ -16,12 +16,12 @@ $candidates = @(
 
 $skillRoot = $candidates | Where-Object { Test-Path (Join-Path $_ "scripts/render_xhs.py") } | Select-Object -First 1
 if (-not $skillRoot) {
-  throw "未找到 Auto-Redbook-Skills。请运行: npm run tool:install"
+  throw "Auto-Redbook-Skills not found. Run: npm run tool:install"
 }
 
 $render = Join-Path $skillRoot "scripts/render_xhs.py"
 if (-not (Test-Path $File)) {
-  throw "Markdown 文件不存在: $File"
+  throw "Markdown not found: $File"
 }
 
 if ([string]::IsNullOrWhiteSpace($Out)) {
@@ -45,7 +45,7 @@ $env:PYTHONUTF8 = "1"
 
 & $python $render $File -t $Theme -m $Mode -o $Out
 if ($LASTEXITCODE -ne 0) {
-  throw "xhs-card-render 失败，退出码 $LASTEXITCODE"
+  throw "xhs-card-render failed, exit $LASTEXITCODE"
 }
 
-Write-Host "[ok] 图片已输出: $Out"
+Write-Host "[ok] images: $Out"

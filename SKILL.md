@@ -48,7 +48,7 @@ metadata:
 | **公众号** | ✅ 已跑通 | baoyu + 微信官方 AppID/Secret | `bun scripts/wechat-api.ts ...` → 草稿箱 |
 | **抖音** | ✅ 已跑通 | PVA | `npm run douyin:login` → `npm run douyin:upload` |
 | **配图 tokenware** | ✅ 已跑通 | tokenware-image gpt-image-2 | `npm run image:generate -- --platform zhihu ...`（知乎/公众号封面） |
-| **小红书卡片** | ✅ 已跑通 | xhs-card-render + Auto-Redbook | `npm run xhs:card-render -- -File ... -Out ...` |
+| **小红书卡片** | ✅ 已跑通 | xhs-card-render + Auto-Redbook | `npm run pipeline:xhs -- -Slug {slug}` |
 | **知乎** | ✅ 链路就绪 | `skills/zhihu` + pyzhihu-cli | `zhihu:login` → `zhihu:publish --content-file ...`（MD→HTML） |
 | **小红书** | ✅ 链路就绪 | skills/xiaohongshu + Chrome 扩展 | `skills/xiaohongshu/scripts/cli.py publish ...` |
 | **TikTok 海外** | ✅ 链路就绪 | social-auto-upload tk_uploader | `uv run python skills/tiktok/scripts/cli.py publish ...` |
@@ -348,10 +348,23 @@ humanizer-zh 处理规则:
 
 MD 须含 YAML frontmatter（`emoji`/`title`/`subtitle`），章节之间用 `---` 分隔。撰稿规格见 xhs-card-render 技能（每节 260-320 字、**5-6 条**要点）。
 
+**推荐（写稿后一键出图）**：
+
+```powershell
+npm run pipeline:xhs -- -Slug "{slug}"
+# 或指定完整路径
+npm run pipeline:xhs -- -File "D:/test/hermes/文章/小红书/{slug}.md"
+```
+
+输出目录：`D:/test/hermes/图片/小红书/{slug}/`（含 `cover.png`、`card_*.png`、`manifest.json`）。
+
+底层渲染（需自定义 Out/Theme 时）：
+
 ```powershell
 npm run xhs:card-render -- `
-  --file "D:/test/hermes/文章/小红书/{slug}.md" `
-  --out "D:/test/hermes/图片/小红书/{slug}"
+  -File "D:/test/hermes/文章/小红书/{slug}.md" `
+  -Out "D:/test/hermes/图片/小红书/{slug}" `
+  -Theme professional
 ```
 
 输出：`cover.png` + `card_1.png` … 发布时传给 `skills/xiaohongshu` 的 `fill-publish`。
@@ -379,7 +392,7 @@ uv run python skills/image/scripts/cli.py generate `
 
 **配图失败处理**（不要换工具、不要反复调试）：
 
-1. 小红书：试一次 `npm run xhs:card-render`；失败则汇报原因（Python/Playwright 未装 → `npm run tool:install`）
+1. 小红书：试一次 `npm run pipeline:xhs -- -Slug {slug}`；失败则汇报原因（Python/Playwright 未装 → `npm run tool:install`）
 2. 其他平台：试一次 `tokenware-image` CLI
 3. 仍失败则汇报：「配图失败，原因：XXX。可选 A) 检查环境/Key 后重试；B) 跳过配图先发文字」
 3. 等用户选择

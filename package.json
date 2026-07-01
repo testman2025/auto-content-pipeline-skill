@@ -15,6 +15,7 @@
     "image:check-key": "uv run python skills/image/scripts/cli.py check-key",
     "image:generate": "uv run python skills/image/scripts/cli.py generate",
     "xhs:card-render": "powershell -ExecutionPolicy Bypass -File scripts/xhs-card-render.ps1",
+    "pipeline:xhs": "powershell -ExecutionPolicy Bypass -File scripts/pipeline-xhs.ps1",
     "douyin:login": "npx @panda-video-automation/pva douyin login",
     "douyin:upload": "npx @panda-video-automation/pva douyin upload",
     "postinstall": "node skills/youtube/scripts/patch-pva-i18n.mjs",
