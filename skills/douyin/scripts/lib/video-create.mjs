@@ -14,8 +14,6 @@ export async function createDouyinTextVideo(opts) {
     outputDir,
     basename,
     ttsRate = '+50%',
-    bgmPath = '',
-    bgmVolume = 0.14,
   } = opts;
 
   mkdirSync(outputDir, { recursive: true });
@@ -33,8 +31,6 @@ export async function createDouyinTextVideo(opts) {
     workDir,
     videoPath,
     duration: tts.duration,
-    bgmPath,
-    bgmVolume,
     ttsRate,
   };
 
@@ -63,7 +59,6 @@ export async function createDouyinTextVideo(opts) {
     duration: tts.duration,
     cueCount: renderResult.cueCount,
     renderer: renderResult.renderer,
-    bgmPath: renderResult.bgmPath,
     ttsRate,
   };
 }

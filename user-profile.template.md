@@ -76,8 +76,6 @@
 ## 抖音配置（启用时填写）
 - TTS 音色: zh-CN-YunxiNeural
 - TTS 语速: +50%
-- 背景音乐: D:/test/hermes/音频/douyin-bgm.mp3
-- BGM 音量: 0.14
 - 默认话题: #跨境电商 #TikTokShop
 - 视频样式: fancy-text-black（黑底花字）
 - 一键出片: `npm run pipeline:douyin -- -Slug {slug}`

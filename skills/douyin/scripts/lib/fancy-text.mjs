@@ -1,13 +1,15 @@
 const KEYWORD_RE =
   /(\d+(?:\.\d+)?%?|\$[\d.]+|[A-Za-z][A-Za-z0-9]*(?:\s?[A-Za-z][A-Za-z0-9]*)*)/g;
 
-const HIGHLIGHT_COLORS = ['&H00E5FF&', '&H0066FF&', '&H00E5FF&', '&H66FF00&'];
+const HIGHLIGHT_COLORS = ['&H00FFFF&', '&H00E5FF&', '&H66FF00&', '&H00A5FF&'];
 
 /**
  * ASS 内联颜色 + 加粗高亮关键词（花字）
  * @param {string} text
+ * @param {number} [baseFs=84]
  */
-export function toFancyAssText(text) {
+export function toFancyAssText(text, baseFs = 84) {
+  const kwFs = baseFs + 14;
   let colorIdx = 0;
   let out = '';
   let last = 0;
@@ -22,7 +24,7 @@ export function toFancyAssText(text) {
     out += escapeAss(text.slice(last, m.index));
     const color = HIGHLIGHT_COLORS[colorIdx % HIGHLIGHT_COLORS.length];
     colorIdx += 1;
-    out += `{\\b1\\c${color}\\fs80}${escapeAss(word)}{\\b0\\c&HFFFFFF&\\fs72}`;
+    out += `{\\b1\\c${color}\\fs${kwFs}}${escapeAss(word)}{\\b0\\c&HFFFFFF&\\fs${baseFs}}`;
     last = m.index + word.length;
   }
   out += escapeAss(text.slice(last));

@@ -40,7 +40,7 @@ export function parseVtt(vttPath) {
  * @param {{ start: number, end: number, text: string }[]} cues
  */
 export function prepareDisplayCues(cues) {
-  return splitAndWrapCues(cues, toFancyAssText);
+  return splitAndWrapCues(cues, (line, baseFs) => toFancyAssText(line, baseFs));
 }
 
 /**
@@ -105,16 +105,16 @@ WrapStyle: 0
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,${fontName},54,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,100,100,140,1
+Style: Default,${fontName},84,&H00FFFFFF,&H000000FF,&H00000000,&HC0000000,-1,0,0,0,100,100,0,0,1,6,4,5,72,72,120,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 `;
 
   const animations = [
-    '{\\fad(200,150)\\move(540,1100,540,960)}',
-    '{\\fad(250,150)\\t(0,300,\\fscx105\\fscy105)}',
-    '{\\fad(200,150)\\move(540,820,540,960)}',
+    '{\\fad(120,80)\\t(0,220,\\fscx118\\fscy118)}',
+    '{\\fad(100,70)\\move(540,1080,540,900,0,220)}',
+    '{\\fad(120,80)\\t(0,180,\\fscx112\\fscy112)}',
   ];
 
   const events = cues
@@ -122,8 +122,9 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
       const anim = animations[i % animations.length];
       const start = formatAssTime(cue.start);
       const end = formatAssTime(Math.max(cue.end, cue.start + 0.8));
-      const fs = fontSizeForText(cue.text.replace(/\\N/g, '\n'));
-      return `Dialogue: 0,${start},${end},Default,,0,0,0,,{\\fs${fs}}${anim}${cue.fancyText}`;
+      const plain = cue.text.replace(/\\N/g, '\n');
+      const fs = fontSizeForText(plain);
+      return `Dialogue: 0,${start},${end},Default,,0,0,0,,{\\b1\\fs${fs}}${anim}${cue.fancyText}`;
     })
     .join('\n');
 

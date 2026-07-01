@@ -1,5 +1,5 @@
-/** 竖屏 1080 宽、左右边距后，每行安全字数 */
-const MAX_CHARS_PER_LINE = 12;
+/** 大字花字：每行更少字 → 字号更大 */
+const MAX_CHARS_PER_LINE = 10;
 const MAX_LINES = 2;
 const MAX_CHARS_PER_CUE = MAX_CHARS_PER_LINE * MAX_LINES;
 
@@ -46,15 +46,15 @@ export function wrapPlainLines(text, maxPerLine = MAX_CHARS_PER_LINE) {
 export function fontSizeForText(text) {
   const lines = text.includes('\\N') ? text.split('\\N') : wrapPlainLines(text);
   const maxLen = Math.max(...lines.map((l) => l.length), 1);
-  if (maxLen <= 8) return 64;
-  if (maxLen <= 12) return 54;
-  return 46;
+  if (maxLen <= 6) return 96;
+  if (maxLen <= 10) return 84;
+  return 72;
 }
 
 /**
  * 超长 VTT 条拆成多条，按字数比例分配时间
  * @param {{ start: number, end: number, text: string }[]} cues
- * @param {(t: string) => string} toFancy
+ * @param {(line: string, baseFs: number) => string} toFancy
  */
 export function splitAndWrapCues(cues, toFancy) {
   const out = [];
@@ -62,12 +62,11 @@ export function splitAndWrapCues(cues, toFancy) {
     const chunks = chunkByLength(cue.text, MAX_CHARS_PER_CUE);
     if (chunks.length === 1) {
       const lines = wrapPlainLines(cue.text);
-      const display = lines.join('\n');
       out.push({
         start: cue.start,
         end: cue.end,
-        text: display,
-        fancyText: lines.map((l) => toFancy(l)).join('\\N'),
+        text: lines.join('\n'),
+        fancyText: lines.map((l) => toFancy(l, fontSizeForText(l))).join('\\N'),
       });
       continue;
     }
@@ -82,7 +81,7 @@ export function splitAndWrapCues(cues, toFancy) {
         start: t,
         end: t + segDur,
         text: lines.join('\n'),
-        fancyText: lines.map((l) => toFancy(l)).join('\\N'),
+        fancyText: lines.map((l) => toFancy(l, fontSizeForText(l))).join('\\N'),
       });
       t += segDur;
     }
@@ -94,7 +93,7 @@ export function splitAndWrapCues(cues, toFancy) {
  * @param {string} text
  * @param {number} maxLen
  */
-function chunkByLength(text, maxLen) {
+export function chunkByLength(text, maxLen) {
   if (text.length <= maxLen) return [text];
   const chunks = [];
   let rest = text;
