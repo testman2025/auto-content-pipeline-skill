@@ -8,6 +8,11 @@ import { spawn } from 'child_process';
 import { homedir } from 'os';
 import { join } from 'path';
 import { runBaoyuScript, ensureBaoyuXInstalled } from '../../../scripts/lib/baoyu-x.mjs';
+import {
+  mayLaunchBrowser,
+  printManualLoginSteps,
+  requireOverseasConsent,
+} from '../../../scripts/lib/overseas-guard.mjs';
 
 function defaultBaoyuProfile() {
   if (process.env.X_BROWSER_PROFILE_DIR) {
@@ -59,15 +64,24 @@ function openChrome(url) {
 }
 
 async function cmdLogin() {
+  requireOverseasConsent('x', 'login');
   ensureBaoyuXInstalled();
-  console.log(`将使用 Chrome 配置目录: ${DEFAULT_PROFILE}`);
-  openChrome('https://x.com/i/flow/login');
-  console.log('请在浏览器中完成 X/Twitter 登录，完成后按 Enter...');
+  console.log(`Chrome 配置目录: ${DEFAULT_PROFILE}\n`);
+  if (mayLaunchBrowser('x')) {
+    openChrome('https://x.com/i/flow/login');
+    console.log('已按你的要求打开 Chrome 登录页。');
+  } else {
+    printManualLoginSteps('x', 'https://x.com/i/flow/login');
+    console.log('\n本命令默认不自动打开浏览器。若确需脚本打开：');
+    console.log('  $env:OVERSEAS_USER_REQUESTED_BROWSER="true"');
+  }
+  console.log('\n登录完成后按 Enter...');
   await new Promise((r) => process.stdin.once('data', r));
-  console.log('✅ 登录会话已保存在 Chrome profile');
+  console.log('✅ 请在 publish 时于浏览器确认发帖');
 }
 
 async function cmdCheckLogin() {
+  requireOverseasConsent('x', 'check-login');
   const check = runBaoyuScript('check-paste-permissions.ts', [], {
     silent: true,
     allowFail: true,
@@ -98,6 +112,7 @@ function readContent(file) {
 }
 
 async function cmdPublish(argv) {
+  requireOverseasConsent('x', 'publish');
   const opts = parseArgs(argv);
   let { text, file, video, images, cover, title, submit, profile } = opts;
 

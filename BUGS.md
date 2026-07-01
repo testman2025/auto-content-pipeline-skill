@@ -12,8 +12,11 @@
 **处置**：
 - **立即停止**一切 `linkedin:*` 命令与脚本；勿换号、勿批量重试
 - 仅通过 LinkedIn 官方申诉 / 帮助中心处理
-- `skills/linkedin/scripts/cli.mjs` 增加门禁：须 `LINKEDIN_ALLOW_AUTOMATION=true` 才执行 login/check-login/publish
-- Agent / 流水线**禁止**自动连跑 LinkedIn 检测；默认只生成文稿
+- `skills/linkedin/scripts/cli.mjs` 增加门禁：须 `OVERSEAS_ALLOW_AUTOMATION=true` 才执行 login/check-login/publish
+- **login 不再自动打开浏览器**；禁止 Agent 使用 Cursor 内置浏览器访问海外登录页
+- 新增 `references/overseas-automation-rules.md`：海外平台统一禁止 Agent 连跑登录检测、禁止代开浏览器
+
+**用户反馈**：Agent 声称已打开 Chrome，但用户未看到登录页（实际可能只打开了 Cursor 内浏览器或后台进程）；反复检测导致封号。
 
 **教训**：领英操作必须人工确认、单次、间隔数分钟以上；测试也不要连点 check-login。
 

@@ -7,21 +7,12 @@ import { existsSync, readFileSync } from 'fs';
 import {
   ensureLinkedInCliInstalled,
   linkedinConfigPath,
-  openSystemChrome,
   runLinkedInCli,
 } from '../../../scripts/lib/linkedin-cli.mjs';
-
-/** 默认关闭；防 Agent 连跑触发封号。人工确认: LINKEDIN_ALLOW_AUTOMATION=true */
-function requireAutomationConsent() {
-  if (process.env.LINKEDIN_ALLOW_AUTOMATION === 'true') {
-    return;
-  }
-  console.error('⛔ LinkedIn 自动化已默认关闭（防封号）。');
-  console.error('   须你本人在终端确认后执行：');
-  console.error('   $env:LINKEDIN_ALLOW_AUTOMATION="true"; npm run linkedin:check-login');
-  console.error('   禁止 Agent 连续调用 login / check-login / publish。');
-  process.exit(1);
-}
+import {
+  printManualLoginSteps,
+  requireOverseasConsent,
+} from '../../../scripts/lib/overseas-guard.mjs';
 
 function parseArgs(argv) {
   const opts = { visibility: 'connections' };
@@ -46,26 +37,19 @@ function assertPersonalAccountMode() {
   }
 }
 
-async function cmdLogin() {
+function cmdLogin() {
   assertPersonalAccountMode();
   ensureLinkedInCliInstalled();
 
-  if (!openSystemChrome('https://www.linkedin.com/login')) {
-    console.log('未找到系统 Chrome，请在浏览器中打开 https://www.linkedin.com/login 并完成登录。');
-  } else {
-    console.log('已在系统 Chrome 中打开 LinkedIn 登录页。');
-  }
-
+  console.log('LinkedIn 个人号 — 登录说明（本命令不会自动打开浏览器）\n');
+  printManualLoginSteps('linkedin', 'https://www.linkedin.com/login');
   console.log('');
-  console.log('个人号登录说明：');
-  console.log('  1. 在 Chrome 中登录 linkedin.com（与日常浏览同一浏览器配置）');
-  console.log('  2. linkedin-cli 将从 Chrome 读取 Cookie（browser-cookie3）');
-  console.log('  3. 勿将 Cookie 写入 Git；可选设置 LINKEDIN_COOKIE_HEADER 环境变量');
+  console.log('Cookie 说明：');
+  console.log('  • linkedin-cli 从你本机已登录的 Chrome 读取 Cookie');
+  console.log('  • 勿将 Cookie 写入 Git；可选 LINKEDIN_COOKIE_HEADER');
   console.log('');
-  console.log('登录完成后按 Enter 检查会话...');
-  await new Promise((r) => process.stdin.once('data', r));
-
-  runLinkedInCli(['auth-status']);
+  console.log('登录完成后，自行执行一次（勿连点）：');
+  console.log('  $env:OVERSEAS_ALLOW_AUTOMATION="true"; npm run linkedin:check-login');
 }
 
 function cmdCheckLogin() {
@@ -107,13 +91,17 @@ if (!command) {
 
   login | check-login | publish --text "..." | publish --file path.md
 
+  默认关闭自动化。须 OVERSEAS_ALLOW_AUTOMATION=true 才执行 login/check-login/publish。
+  login 仅打印说明，不会打开浏览器。详见 references/overseas-automation-rules.md
+
 环境变量:
-  LINKEDIN_ALLOW_AUTOMATION  须设为 true 才执行 login/check-login/publish（默认关闭）
-  LINKEDIN_CLI_ROOT         tool/linkedin-cli 路径
-  LINKEDIN_CONFIG           默认 skills/linkedin/config.yaml
-  LINKEDIN_BROWSER          读 Cookie 的浏览器（默认 chrome）
-  LINKEDIN_COOKIE_HEADER    完整 Cookie 头（比浏览器抽取更稳）
-  LINKEDIN_ACCOUNT_TYPE     personal（默认）| company（预留，未实现）
+  OVERSEAS_ALLOW_AUTOMATION   海外自动化总开关
+  LINKEDIN_ALLOW_AUTOMATION   同义（兼容）
+  LINKEDIN_CLI_ROOT           tool/linkedin-cli 路径
+  LINKEDIN_CONFIG             默认 skills/linkedin/config.yaml
+  LINKEDIN_BROWSER            读 Cookie 的浏览器（默认 chrome）
+  LINKEDIN_COOKIE_HEADER      完整 Cookie 头
+  LINKEDIN_ACCOUNT_TYPE       personal（默认）| company（预留）
 
 npm: linkedin:login | linkedin:check-login | linkedin:publish
 
@@ -122,13 +110,13 @@ npm: linkedin:login | linkedin:check-login | linkedin:publish
 }
 
 if (command === 'login') {
-  requireAutomationConsent();
-  await cmdLogin();
+  requireOverseasConsent('linkedin', 'login');
+  cmdLogin();
 } else if (command === 'check-login') {
-  requireAutomationConsent();
+  requireOverseasConsent('linkedin', 'check-login');
   cmdCheckLogin();
 } else if (command === 'publish') {
-  requireAutomationConsent();
+  requireOverseasConsent('linkedin', 'publish');
   cmdPublish(rest);
 } else {
   console.error('未知命令:', command);

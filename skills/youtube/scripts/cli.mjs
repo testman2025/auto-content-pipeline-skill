@@ -8,6 +8,7 @@
 import { cmdCheckLogin, cmdLogin } from './commands/auth.mjs';
 import { cmdPublish } from './commands/publish.mjs';
 import { cmdCreateVideo, cmdPipeline } from './commands/pipeline.mjs';
+import { requireOverseasConsent } from '../../../scripts/lib/overseas-guard.mjs';
 
 const USAGE = `YouTube Skills CLI
 
@@ -25,6 +26,7 @@ publish 参数:
   --privacy, -p <level>    public | unlisted | private（默认 unlisted）
 
 环境变量:
+  OVERSEAS_ALLOW_AUTOMATION  海外 login/check/publish 总开关（默认关闭）
   CHROME_CDP_URL           附着已打开的 Chrome（推荐）
   YOUTUBE_CHANNEL_ID       频道 ID
   VIDEO_PRIVACY            可见性
@@ -40,11 +42,23 @@ if (!command || command === '--help' || command === '-h') {
 }
 
 const handlers = {
-  'check-login': () => cmdCheckLogin(),
-  login: () => cmdLogin(),
-  publish: () => cmdPublish(rest),
+  'check-login': () => {
+    requireOverseasConsent('youtube', 'check-login');
+    return cmdCheckLogin();
+  },
+  login: () => {
+    requireOverseasConsent('youtube', 'login');
+    return cmdLogin();
+  },
+  publish: () => {
+    requireOverseasConsent('youtube', 'publish');
+    return cmdPublish(rest);
+  },
   'create-video': () => cmdCreateVideo(rest),
-  pipeline: () => cmdPipeline(),
+  pipeline: () => {
+    requireOverseasConsent('youtube', 'pipeline');
+    return cmdPipeline();
+  },
 };
 
 const handler = handlers[command];

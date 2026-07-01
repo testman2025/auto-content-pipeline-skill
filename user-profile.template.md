@@ -126,11 +126,15 @@
 
 | 平台 | 自动发布 | 说明 |
 |------|----------|------|
-| YouTube | ✅ 推荐 | sau / Playwright，2026-06-30 跑通 |
+| YouTube | ✅ 用户已验证 | 须 `OVERSEAS_ALLOW_AUTOMATION=true`；禁止 Agent 连跑 check-login |
 | 公众号 / 抖音 / 配图 | ✅ 推荐 | baoyu API、PVA、tokenware-image 已验证 |
-| 知乎 / 小红书 / TikTok | ✅ 可用 | 链路就绪，需各平台首次登录 |
-| LinkedIn / X | ❌ 默认关闭 | 2026-06-30 自动发帖触发封号，仅生成文稿 |
-| Reddit | ⚠️ 扩展桥 | 需 Chrome 加载 Reddit Bridge；控制发帖频率 |
+| 知乎 / 小红书 / Reddit | ✅ 用户已验证 | 国内/扩展桥；Reddit 亦属海外，禁止 Agent 代开浏览器 |
+| LinkedIn / X | ❌ 默认关闭 | 禁止 Agent 代开登录、禁止连跑检测；只出稿 |
+| TikTok | ⚠️ 出片为主 | 发布需 cookie；禁止反复 login |
+
+**海外平台统一规则**：见仓库 `references/overseas-automation-rules.md`  
+- Agent **不得**自动打开浏览器或 Cursor 内浏览器访问海外登录页  
+- 用户须**自己**在常用浏览器登录；`check-login` 最多手动执行 **1 次/会话**
 
 X、LinkedIn 对个人账号的**浏览器自动发帖**风控极严。建议：
 - 默认关闭自动发布，仅生成 `D:/test/hermes/文章/{平台}/` 文稿由人工发布

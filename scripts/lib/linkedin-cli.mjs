@@ -1,5 +1,5 @@
 import { existsSync } from 'fs';
-import { spawn, spawnSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import { join } from 'path';
 import { skillPkg, toolPath } from './repo-paths.mjs';
 
@@ -8,13 +8,6 @@ export const linkedinCliRoot =
 
 export const linkedinConfigPath =
   process.env.LINKEDIN_CONFIG || join(skillPkg('linkedin'), 'config.yaml');
-
-const CHROME_PATHS = [
-  process.env.LINKEDIN_CHROME_PATH,
-  process.env.X_BROWSER_CHROME_PATH,
-  'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-  'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-].filter(Boolean);
 
 export function ensureLinkedInCliInstalled() {
   const pkg = join(linkedinCliRoot, 'pyproject.toml');
@@ -48,14 +41,4 @@ export function runLinkedInCli(args, opts = {}) {
     process.exit(r.status ?? 2);
   }
   return r;
-}
-
-export function openSystemChrome(url = 'https://www.linkedin.com/login') {
-  const chrome = CHROME_PATHS.find((p) => existsSync(p));
-  if (!chrome) {
-    return false;
-  }
-  const child = spawn(chrome, [url], { detached: true, stdio: 'ignore' });
-  child.unref();
-  return true;
 }
