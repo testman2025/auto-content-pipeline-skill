@@ -1,20 +1,18 @@
 ---
 name: xhs-card-render
 description: |
-  小红书图文卡片渲染（非 AI 生图）。基于 Auto-Redbook-Skills：Markdown + YAML frontmatter
-  → HTML/CSS → Playwright 截图，输出 1080×1440 PNG（cover + card_N）。
-  当流水线 Step 4c 为小红书配图、或用户要求「小红书卡片」「MD 转小红书图」时使用。
-  禁止使用 tokenware / gpt-image-2 为小红书正文卡片配图。
+  小红书图文卡片配图（非 AI）。配图 MD + YAML frontmatter → `npm run pipeline:xhs` → PNG 卡片。
+  Step 4c 小红书配图时使用。禁止 tokenware / gpt-image-2。
 version: 1.0.0
 metadata:
   hermes:
-    tags: [xiaohongshu, card, markdown, playwright, pipeline]
+    tags: [xiaohongshu, card, markdown, pipeline]
     homepage: https://github.com/comeonzhj/Auto-Redbook-Skills
 ---
 
-# 小红书卡片渲染（xhs-card-render）
+# 小红书卡片配图（xhs-card-render）
 
-**HTML/CSS 模板渲染，不是 AI 生图。** 无水印、无 AI 元数据，适合跨境干货号。
+**模板卡片出图，不是 AI 生图。** Agent 只需执行 `npm run pipeline:xhs`，勿单独操作浏览器截图或 HTML 渲染。
 
 ## 默认配置（已验证）
 
@@ -120,10 +118,10 @@ npm run xhs:card-render -- `
 ## 依赖
 
 ```powershell
-npm run tool:install   # 克隆 tool/Auto-Redbook-Skills
-pip install markdown pyyaml playwright
-playwright install chromium
+npm run tool:install   # 含 Auto-Redbook 与 Python 渲染环境，Agent 勿逐步安装 playwright
 ```
+
+出图失败且提示缺少环境时，再执行一次 `npm run tool:install`。
 
 ## 与 tokenware-image 分工
 
@@ -136,4 +134,4 @@ playwright install chromium
 
 ## 配图失败
 
-汇报错误，选项：A) 检查 Python/Playwright；B) 跳过配图先发文字。不要改用 AI 生图。
+汇报错误，选项：A) `npm run tool:install` 后重试 `pipeline:xhs`；B) 跳过配图先发文字。不要改用 AI 生图。

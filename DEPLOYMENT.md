@@ -143,4 +143,4 @@ auto-content-pipeline-skill/
 - 小红书标题限 **20字**
 - 公众号 API 需 **IP 白名单**
 - 抖音/小红书依赖本地 Chrome
-- 小红书正文卡片走 **xhs-card-render**（Auto-Redbook HTML 模板，非 AI）；知乎/公众号封面走 tokenware
+- 小红书正文卡片走 **`npm run pipeline:xhs`**（配图 MD → PNG，非 AI）；知乎/公众号封面走 tokenware
