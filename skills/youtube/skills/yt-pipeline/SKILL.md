@@ -1,9 +1,9 @@
 ---
 name: yt-pipeline
 description: |
-  YouTube 全流程技能。读取用户画像，生成英文口播稿，创作视频并发布到 Studio。
+  YouTube 全流程技能。读取用户画像，生成英文口播稿，创作视频并通过 sau 发布。
   当用户要求一键发 YouTube、跑完整内容流水线时触发。
-version: 1.0.0
+version: 2.0.0
 ---
 
 # YouTube 全流程流水线
@@ -14,9 +14,9 @@ version: 1.0.0
 
 ## 前置条件
 
-1. 仓库根目录存在 `user-profile.md`（从 `user-profile.template.md` 复制）
+1. 仓库根目录存在 `user-profile.md`
 2. YouTube 区块已填写：频道 ID、TTS 音色、默认可见性
-3. Studio 已登录或 `CHROME_CDP_URL` 已配置
+3. sau 已登录（`tool/social-auto-upload/cookies/youtube_default.json` 存在）
 
 ## 流程
 
@@ -24,7 +24,7 @@ version: 1.0.0
 user-profile.md
   → 生成口播稿（HERMES_ROOT/文章/YouTube/）
   → TTS + ffmpeg 合成 MP4
-  → Studio 上传发布
+  → sau youtube upload-video
   → 发布报告（HERMES_ROOT/*_youtube发布报告.md）
 ```
 

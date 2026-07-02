@@ -4,11 +4,12 @@
 
 ```powershell
 cd auto-content-pipeline-skill
-powershell -ExecutionPolicy Bypass -File scripts/install-overseas-tools.ps1
+npm run overseas:install
 cd tool/social-auto-upload
 copy conf.example.py conf.py
 uv pip install -e .
 patchright install chromium
+npm run youtube:patch-sau
 ```
 
 ## 验证 sau
@@ -23,9 +24,10 @@ uv run --directory tool/social-auto-upload sau youtube --help
 |------|------|
 | `SAU_ROOT` | 默认 `tool/social-auto-upload` |
 | `YOUTUBE_ACCOUNT_ID` | sau 账号名，默认 `default` |
-| `SAU_HEADED=true` | 有头模式（登录推荐） |
+| `SAU_HEADED=true` | 有头模式（login 推荐） |
+| `OVERSEAS_ALLOW_AUTOMATION=true` | Agent/终端执行 login/check/publish 前须人工开启 |
 
-## 代理（国内）
+## 代理（国内必配）
 
 编辑 `tool/social-auto-upload/conf.py`：
 
@@ -33,12 +35,12 @@ uv run --directory tool/social-auto-upload sau youtube --help
 YT_PROXY = "http://127.0.0.1:7890"
 ```
 
-## 回退方案
+## 登录态
 
-若 `sau` 未安装或失败，设置：
+唯一 cookie 文件：
 
-```powershell
-$env:YOUTUBE_PUBLISH_BACKEND = "playwright"
+```
+tool/social-auto-upload/cookies/youtube_<account>.json
 ```
 
-将使用 `skills/youtube` 内置 Playwright Studio 自动化。
+登录一次后日常只 `publish`，少跑 `check-login`。

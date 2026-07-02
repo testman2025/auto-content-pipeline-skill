@@ -1,5 +1,23 @@
 # Bug 修复记录
 
+## 2026-07-02 — YouTube 收敛为 sau 单路径
+
+**变更**：彻底移除 `skills/youtube` 内置 Playwright 回退（`browser.mjs`、`studio-i18n.mjs`、`publish-playwright.mjs`、`patch-pva-i18n.mjs`）。
+
+**原因**：
+- sau 与 Playwright 登录态分离（`tool/social-auto-upload/cookies/` vs `playwright/.profile/`），混用易反复拉起登录、触发 Google 风控
+- 两条并行链路增加 Agent 误操作面
+
+**现行为**：
+- login / check-login / publish **仅**走 `sau youtube`（social-auto-upload）
+- `scripts/lib/sau.mjs` 改用 `uv run sau`（不再 `python sau_cli.py`）
+- 新增 `scripts/patch-sau-youtube.mjs`：cookie 校验使用 `YT_PROXY`、放宽 Studio URL 判定、输出失败日志
+- check 返回 invalid 时提示勿立即 re-login；日常尽量只 publish
+
+**配置**：唯一 cookie 路径 `tool/social-auto-upload/cookies/youtube_<account>.json`；国内 `conf.py` 设 `YT_PROXY`。
+
+---
+
 ## 2026-06-29 — LinkedIn 改为官方 OAuth Posts API
 
 **变更**：弃用 frizynn/linkedin-cli（Cookie + Playwright），改用 LinkedIn 开发者 **OAuth + `/rest/posts`**。

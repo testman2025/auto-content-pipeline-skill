@@ -1,6 +1,5 @@
 import { existsSync } from 'fs';
 import { sauAccount, runSau, sauAvailable } from '../../../../scripts/lib/sau.mjs';
-import { cmdPublish as playwrightPublish } from './publish-playwright.mjs';
 
 function parseArgs(argv) {
   const opts = { privacy: process.env.VIDEO_PRIVACY || 'unlisted' };
@@ -37,11 +36,9 @@ export async function cmdPublish(argv) {
     process.exit(1);
   }
 
-  if (process.env.YOUTUBE_PUBLISH_BACKEND === 'playwright' || !sauAvailable()) {
-    if (!sauAvailable()) {
-      console.log('⚠️ sau 不可用，回退 Playwright 发布\n');
-    }
-    return playwrightPublish(argv);
+  if (!sauAvailable()) {
+    console.error('social-auto-upload 未安装。请运行: npm run overseas:install');
+    process.exit(1);
   }
 
   const account = sauAccount('youtube');

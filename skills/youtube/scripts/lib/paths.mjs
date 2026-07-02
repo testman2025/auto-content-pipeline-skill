@@ -1,6 +1,5 @@
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
-import { existsSync } from 'fs';
 
 /** skills/youtube 根目录 */
 export const skillRoot = join(dirname(fileURLToPath(import.meta.url)), '../..');
@@ -15,15 +14,5 @@ export const hermesRoot = process.env.HERMES_ROOT || 'D:/test/hermes';
 
 export const defaultBgImage = join(skillRoot, 'assets/default-bg.jpg');
 
-const skillProfileDir = join(skillRoot, 'playwright/.profile/youtube');
-const legacyProfileDir = join(repoRoot, 'playwright/.profile/youtube');
-
-/** 优先使用旧路径（迁移期兼容已有登录态） */
-export const profileDir = existsSync(legacyProfileDir)
-  ? legacyProfileDir
-  : skillProfileDir;
-
-export const authFile = join(
-  repoRoot,
-  'node_modules/@panda-video-automation/pva/playwright/.auth/youtube.json'
-);
+/** sau YouTube cookie 目录（唯一登录态来源） */
+export const sauCookieDir = join(repoRoot, 'tool/social-auto-upload/cookies');

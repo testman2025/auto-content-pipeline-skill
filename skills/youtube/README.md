@@ -1,34 +1,34 @@
 # YouTube Skills
 
-YouTube Studio 自动化技能包，结构与 `skills/xiaohongshu` 对齐。
+YouTube 自动化技能包，**仅 sau（social-auto-upload）单路径**。
 
 ## 子技能
 
 | 技能 | 说明 |
 |------|------|
-| [yt-auth](skills/yt-auth/SKILL.md) | Studio 登录 |
-| [yt-publish](skills/yt-publish/SKILL.md) | 上传发布 |
+| [yt-auth](skills/yt-auth/SKILL.md) | sau 登录 / check |
+| [yt-publish](skills/yt-publish/SKILL.md) | sau 上传发布 |
 | [yt-create](skills/yt-create/SKILL.md) | TTS + 视频合成 |
 | [yt-pipeline](skills/yt-pipeline/SKILL.md) | 全流程 |
 
 ## 安装
 
-在仓库根目录执行：
-
 ```powershell
-npm install
+npm run overseas:install
+cd tool/social-auto-upload
+copy conf.example.py conf.py
+# 国内编辑 conf.py: YT_PROXY = "http://127.0.0.1:7890"
 ```
-
-依赖：`playwright`（经 pva）、`ffmpeg`、`edge-tts`（经 uv）。
 
 ## 使用
 
 ```powershell
-node skills/youtube/scripts/cli.mjs --help
-node skills/youtube/scripts/cli.mjs check-login
-node skills/youtube/scripts/cli.mjs login
-node skills/youtube/scripts/cli.mjs publish --video "D:/abs/video.mp4" --title "Title"
-node skills/youtube/scripts/cli.mjs pipeline
+$env:OVERSEAS_ALLOW_AUTOMATION = "true"   # 仅人工 login 时需要
+npm run youtube:login                      # 一次性登录
+npm run youtube:publish -- --video "D:/abs/video.mp4" --title "Title"
+npm run youtube:pipeline
 ```
+
+登录态唯一路径：`tool/social-auto-upload/cookies/youtube_default.json`
 
 详见 [references/publishing.md](references/publishing.md)。

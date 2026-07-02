@@ -2,56 +2,61 @@
 
 ## CLI 入口
 
-所有操作通过统一 CLI：
-
 ```powershell
 node skills/youtube/scripts/cli.mjs <command>
 ```
 
-npm 快捷方式（根目录 `package.json`）：
+| npm 命令 | 说明 |
+|----------|------|
+| `npm run youtube:login` | 一次性 sau 登录 |
+| `npm run youtube:check-login` | 检查 cookie（尽量少用） |
+| `npm run youtube:publish` | 上传发布（日常主命令） |
+| `npm run youtube:pipeline` | 全流程 |
 
-| npm 命令 | CLI 等价 |
-|----------|----------|
-| `npm run youtube:login` | `cli.mjs login` |
-| `npm run youtube:publish` | `cli.mjs publish` |
-| `npm run youtube:pipeline` | `cli.mjs pipeline` |
+## 单路径原则
 
-## 推荐：附着已打开的 Chrome
+- **仅 sau**：`social-auto-upload` 的 `sau youtube` 命令
+- **唯一 cookie**：`tool/social-auto-upload/cookies/youtube_<account>.json`
+- **已移除**：Playwright 回退、`CHROME_CDP_URL`、`YOUTUBE_PUBLISH_BACKEND`、PVA YouTube 补丁
 
-```powershell
-& "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222
-$env:CHROME_CDP_URL = "http://127.0.0.1:9222"
-$env:YOUTUBE_CHANNEL_ID = "UCxxxxxxxx"
-node skills/youtube/scripts/cli.mjs publish --video "D:/path/video.mp4" --title "标题"
+## 国内网络
+
+编辑 `tool/social-auto-upload/conf.py`：
+
+```python
+YT_PROXY = "http://127.0.0.1:7890"  # 改成你的代理端口
 ```
+
+## 风控建议
+
+1. **登录一次**，之后尽量只 `publish`
+2. **少跑 check-login**；check 返回 invalid 时勿立即 re-login
+3. **Agent 禁止**自动连跑 login/check（`OVERSEAS_ALLOW_AUTOMATION` 默认关闭）
+4. check 失败间隔至少 30 分钟再试 login
 
 ## 目录结构
 
 ```
 skills/youtube/
-├── SKILL.md                 # 技能路由入口
-├── skills/
-│   ├── yt-auth/             # 登录
-│   ├── yt-publish/          # 发布
-│   ├── yt-create/           # 视频创作
-│   └── yt-pipeline/         # 全流程
-├── scripts/
-│   ├── cli.mjs              # 统一 CLI（对标 xhs cli.py）
-│   ├── commands/            # 子命令实现
-│   └── lib/                 # 浏览器、Studio、TTS、合成
-├── assets/default-bg.jpg    # 默认视频背景
-├── playwright/.profile/     # 持久化登录（gitignore）
+├── SKILL.md
+├── skills/yt-auth|yt-publish|yt-create|yt-pipeline/
+├── scripts/cli.mjs
+├── scripts/commands/     # auth.mjs, publish.mjs, pipeline.mjs
 └── references/publishing.md
+
+tool/social-auto-upload/
+├── sau_cli.py
+├── conf.py
+└── cookies/youtube_default.json   ← 唯一登录态
 ```
 
 ## 不要用
 
-- `pva youtube login` — 测试结束会关浏览器，且只认中文验证
+- `pva youtube login/upload` — 已废弃，与 sau cookie 不互通
 
 ## 全流程
 
 ```powershell
-# user-profile.md 已配置 YouTube 区块
 node skills/youtube/scripts/cli.mjs pipeline
 ```
 

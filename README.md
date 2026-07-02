@@ -8,7 +8,7 @@
 
 | 平台 | 状态 | 方案 |
 |------|------|------|
-| YouTube | ✅ 已跑通 | sau / Playwright |
+| YouTube | ✅ 已跑通 | sau（social-auto-upload） |
 | 公众号 | ✅ 已跑通 | baoyu + 微信官方 API |
 | 抖音 | ✅ 已跑通 | PVA + **pipeline:douyin** 花字视频 |
 | 配图 | ✅ 已跑通 | tokenware-image |

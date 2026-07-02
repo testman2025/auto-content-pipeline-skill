@@ -44,7 +44,7 @@ metadata:
 
 | 平台 | 状态 | 方案 | 验证命令 / 说明 |
 |------|------|------|-----------------|
-| **YouTube** | ✅ 已跑通 | sau / Playwright Studio | `npm run youtube:publish -- --video "..." --title "..."` |
+| **YouTube** | ✅ 已跑通 | sau（social-auto-upload） | `npm run youtube:publish -- --video "..." --title "..."` |
 | **公众号** | ✅ 已跑通 | baoyu + 微信官方 AppID/Secret | `bun scripts/wechat-api.ts ...` → 草稿箱 |
 | **抖音** | ✅ 已跑通 | PVA | `npm run douyin:login` → `npm run douyin:upload` |
 | **配图 tokenware** | ✅ 已跑通 | tokenware-image gpt-image-2 | `npm run image:generate -- --platform zhihu ...`（知乎/公众号封面） |
@@ -546,7 +546,7 @@ uv pip install -e .
 patchright install chromium
 ```
 
-**YouTube** 优先 `sau youtube`（social-auto-upload）；失败时自动回退 Playwright（`YOUTUBE_PUBLISH_BACKEND=playwright` 可强制）。
+**YouTube** 仅 `sau youtube`（social-auto-upload）。登录态唯一路径：`tool/social-auto-upload/cookies/`。无 Playwright 回退；Agent 禁止连跑 login/check。
 
 **LinkedIn** 基于 **官方 OAuth + Posts API**（`w_member_social`）。打开授权页后须用户手动登录授权，终端确认后再存令牌/发帖。公司主页预留见 `skills/linkedin/references/company-page.md`。
 
@@ -591,7 +591,7 @@ if user-profile.X == 启用 and 存在 X 文稿/短帖:
 | 小红书 | ✅/❌ | 笔记链接 | Bridge + 扩展 |
 | 知乎 | ✅/❌ | 文章链接 | skills/zhihu（HTML） |
 | 抖音 | ✅/❌ | 视频 ID | PVA |
-| YouTube | ✅/❌ | 视频 URL | sau / Playwright |
+| YouTube | ✅/❌ | 视频 URL | sau |
 | TikTok | ✅/❌ | tk_uploader | 海外竖版 |
 | LinkedIn | ⏸️ 仅文稿 | — | 默认不自动发 |
 | X (Twitter) | ⏸️ 仅文稿 | — | 默认不自动发 |

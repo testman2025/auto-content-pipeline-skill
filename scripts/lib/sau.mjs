@@ -17,12 +17,12 @@ export function resolveSauCmd() {
   if (process.env.SAU_CLI_COMMAND) {
     return process.env.SAU_CLI_COMMAND.split(' ');
   }
-  return ['uv', 'run', '--directory', sauRoot, 'python', 'sau_cli.py'];
+  return ['uv', 'run', '--directory', sauRoot, 'sau'];
 }
 
 export function runSau(args, opts = {}) {
   if (!existsSync(join(sauRoot, 'sau_cli.py'))) {
-    throw new Error(`social-auto-upload 未安装: ${sauRoot}`);
+    throw new Error(`social-auto-upload 未安装: ${sauRoot}\n请运行: npm run overseas:install`);
   }
   if (!existsSync(join(sauRoot, 'conf.py'))) {
     throw new Error(
@@ -35,12 +35,14 @@ export function runSau(args, opts = {}) {
   if (headed && !hasHeadFlag) {
     cmd.push('--headed');
   }
+  const { env: extraEnv, ...restOpts } = opts;
   const r = spawnSync(cmd[0], cmd.slice(1), {
     stdio: opts.silent ? 'pipe' : 'inherit',
     shell: false,
     encoding: 'utf8',
     cwd: sauRoot,
-    ...opts,
+    env: { ...process.env, ...extraEnv },
+    ...restOpts,
   });
   if (r.status !== 0) {
     const detail = r.stderr || r.stdout || '';

@@ -76,7 +76,14 @@ if (Test-Path (Join-Path $autoRedbook "requirements.txt")) {
   & $python -m playwright install chromium
 }
 
-Ensure-Clone "social-auto-upload" "https://github.com/dreammis/social-auto-upload.git" | Out-Null
+$sau = Ensure-Clone "social-auto-upload" "https://github.com/dreammis/social-auto-upload.git"
+if (Test-Path (Join-Path $sau "pyproject.toml")) {
+  Write-Host "[uv] social-auto-upload (editable install)"
+  Push-Location $sau
+  uv pip install -e .
+  Pop-Location
+  node (Join-Path $repo "scripts/patch-sau-youtube.mjs")
+}
 # LinkedIn 使用官方 OAuth API（skills/linkedin），不再 clone linkedin-cli
 $reddit = Ensure-Clone "reddit-skills" "https://github.com/1146345502/reddit-skills.git"
 if (Test-Path (Join-Path $reddit "pyproject.toml")) {
