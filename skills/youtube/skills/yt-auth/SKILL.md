@@ -27,6 +27,8 @@ Cookie 保存到：`tool/social-auto-upload/cookies/youtube_default.json`
 
 ## 检查登录（尽量少用）
 
+**警告**：check-login 会单独开一个 Chrome 访问 Studio。禁止在 publish 前连跑 check-login（易触发 Google 风控）。
+
 ```powershell
 $env:OVERSEAS_ALLOW_AUTOMATION = "true"
 npm run youtube:check-login
