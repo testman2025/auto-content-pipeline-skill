@@ -29,6 +29,9 @@ metadata:
 - **禁止**直接调用 `pva youtube login/upload`
 - **禁止**设置 `YOUTUBE_PUBLISH_BACKEND`、`CHROME_CDP_URL` 等已废弃变量
 - **禁止 Agent 连跑** `login` / `check-login`（须 `OVERSEAS_ALLOW_AUTOMATION=true` 且用户手动确认）
+- **禁止** publish 前先 `check-login`（会额外开浏览器做 cookie 校验，连开两个窗口像机器人）
+- **禁止**用 Cursor/MCP 浏览器代替 sau 操作 YouTube Studio
+- **禁止**发布失败后立即重试；至少间隔 30 分钟
 - 文件路径必须使用**绝对路径**
 - 发布前须用户确认标题、描述、可见性
 

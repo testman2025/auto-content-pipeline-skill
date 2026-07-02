@@ -17,7 +17,10 @@ export function resolveSauCmd() {
   if (process.env.SAU_CLI_COMMAND) {
     return process.env.SAU_CLI_COMMAND.split(' ');
   }
-  return ['uv', 'run', '--directory', sauRoot, 'sau'];
+  // 使用 venv 内 Python 直调，避免 uv run 传播 hermes-agent sys.path 导致
+  // from utils.base_social_media import set_init_script 解析到错误的 utils.py
+  const venvPython = join(sauRoot, '.venv/Scripts/python.exe');
+  return [venvPython, join(sauRoot, 'sau_cli.py')];
 }
 
 export function runSau(args, opts = {}) {

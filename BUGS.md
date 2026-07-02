@@ -1,5 +1,23 @@
 # Bug 修复记录
 
+## 2026-07-02 — YouTube 发布反复开浏览器 + 操作过快（风控风险）
+
+**现象**：Agent/Hermes 执行 YouTube 发布时反复打开又关闭 Chrome，点击极快；封面上传未等完成就点发布；像机器人操作，有封号风险。
+
+**原因**：
+- `upload_youtube_video` 发布前调用 `youtube_setup` → `cookie_auth`，**先开一个浏览器 check 再开一个浏览器 upload**，单次 publish 连开两个窗口
+- Agent 常在 publish 前先跑 `check-login`，再叠加 sau 内部 pre-check，窗口开关更频繁
+- 上传流程各步骤间隔过短（固定 `wait_for_timeout(400~1200)`），封面上传只等 2 秒
+
+**修复**：
+- `sau_cli.py`：publish 前改为轻量检查 cookie 文件（`_youtube_cookie_file_usable`），**不再开浏览器 pre-check**；登录失效由 upload 流程内检测
+- `main.py`：新增 `_human_pause` 随机间隔（0.9~2.2s）、`_wait_thumbnail_ready` 等封面预览、上传进度须到 100% 再发布
+- `publish.mjs` / `yt-publish` SKILL / `overseas-automation-rules.md`：禁止 publish 前 check-login、禁止 MCP 浏览器、禁止连跑重试
+
+**验证**：`npm run youtube:patch-sau` → 单次 `npm run youtube:publish` 只开一个 Chrome 窗口，日志可见「上传中 X%」直至 100% 再点发布
+
+---
+
 ## 2026-07-02 — YouTube 收敛为 sau 单路径
 
 **变更**：彻底移除 `skills/youtube` 内置 Playwright 回退（`browser.mjs`、`studio-i18n.mjs`、`publish-playwright.mjs`、`patch-pva-i18n.mjs`）。

@@ -19,6 +19,19 @@
 
 不再使用 Cookie 抽取 / Playwright 发帖。配置见 `skills/linkedin/references/linkedin-api-setup.md`。
 
+## YouTube（sau / social-auto-upload）
+
+| 步骤 | 行为 |
+|------|------|
+| login | **仅首次**或 cookie 明确失效时；用户手动在弹出的 Chrome 里登录 |
+| check-login | **极少使用**；会单独开浏览器访问 Studio，勿与 publish 连跑 |
+| publish | **只执行一次** `npm run youtube:publish`；sau 内部单窗口完成上传，操作带人性化间隔 |
+
+**禁止**：
+- publish 前先 check-login（以前会连开两个浏览器窗口）
+- 用 Cursor/MCP 浏览器操作 Studio
+- 失败后立即重试或连发多条测试视频
+
 ## Agent 禁止
 
 - 未经 `OVERSEAS_ALLOW_AUTOMATION=true` 执行海外 login/publish

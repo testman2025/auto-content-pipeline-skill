@@ -60,6 +60,11 @@ export async function cmdPublish(argv) {
   if (playlist) args.push('--playlist', playlist);
 
   console.log('=== YouTube 发布（sau / social-auto-upload）===\n');
+  console.log('ℹ️  单次发布只开一个浏览器窗口；请勿并行跑 check-login/login。');
+  console.log('    sau 会在上传流程内检测登录态，发布前无需 check。\n');
+  // YouTube Studio 拦截 headless Chrome，必须 headed 模式
+  // --headed 需放在子命令后（youtube upload-video --headed ...）
+  args.push('--headed');
   runSau(args);
   console.log('\n✅ sau youtube 发布完成');
   process.exit(0);

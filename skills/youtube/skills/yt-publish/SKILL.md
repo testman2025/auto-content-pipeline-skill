@@ -18,6 +18,10 @@ version: 2.0.0
 - 视频路径必须为绝对路径
 - **日常直接 publish**；仅在首次或 sau 明确提示 cookie 失效时才 login
 - **禁止** check 失败后立即 re-login
+- **禁止** publish 前先跑 `check-login`（会多开一次浏览器，易触发 Google 风控）
+- **禁止**用 Cursor/MCP 浏览器操作 YouTube Studio（只用 sau CLI 自带 Chrome）
+- **禁止**失败后立即重试 publish；至少间隔 30 分钟
+- **单次任务只执行一条** `npm run youtube:publish`，不要连跑或拆成多步浏览器操作
 
 ## 命令
 
