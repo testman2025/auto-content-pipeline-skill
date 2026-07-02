@@ -18,6 +18,25 @@
 
 ---
 
+## 2026-07-02 — sau check invalid（headless + URL 判定过严）
+
+**现象**：`sau youtube login` 成功保存 16KB cookie，但 `check` 返回 `invalid`。
+
+**原因**：
+- `cookie_auth()` 用 `headless=True` 开 Chrome，Google 易识别并重定向登录页
+- 判定要求 URL 含 `/channel/`，部分 Studio 落地页不满足
+- `check` 未使用 `YT_PROXY`，国内网络与 login 环境不一致
+- 异常被 `except: return False` 静默吞掉
+
+**修复**：`scripts/patch-sau-youtube.mjs` 改为 regex 匹配（兼容 CRLF），patch 后：
+- check 与 login 一致用有头 Chrome + `YT_PROXY`
+- 放宽为 `studio.youtube.com` 域即可
+- 失败时输出 URL/异常日志
+
+**验证**：`node scripts/patch-sau-youtube.mjs` → `uv run sau youtube check --account default` → `valid`
+
+---
+
 ## 2026-06-29 — LinkedIn 改为官方 OAuth Posts API
 
 **变更**：弃用 frizynn/linkedin-cli（Cookie + Playwright），改用 LinkedIn 开发者 **OAuth + `/rest/posts`**。

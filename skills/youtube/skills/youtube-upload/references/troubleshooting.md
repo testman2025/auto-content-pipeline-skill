@@ -2,19 +2,20 @@
 
 ## sau 命令找不到 / ModuleNotFoundError
 
-1. `npm run overseas:install`
-2. `cd tool/social-auto-upload; uv pip install -e .`
-3. `npm run youtube:patch-sau`
+1. `npm run overseas:install`（含 `uv pip install -e .`）
+2. **不要**用 `python sau_cli.py`，应使用 `uv run sau`
+3. 若误删 `sau_cli.py`：从 `sau_cli.py.bak` 恢复后执行 `npm run youtube:patch-sau`
 4. 验证：`uv run --directory tool/social-auto-upload sau youtube --help`
-
-**不要**用 `python sau_cli.py`，应使用 `uv run sau`。
 
 ## check 返回 invalid（cookie 文件存在）
 
-1. 检查 `conf.py` 的 `YT_PROXY`（国内必配）
-2. **勿立即 re-login**，间隔至少 30 分钟
-3. 查看 sau 日志中的 cookie 校验原因（patch 后会输出 URL/异常）
-4. 日常可直接 `publish`，不必先 check
+**常见原因**：上游 `cookie_auth()` 默认 headless + 严格 `/channel/` URL 判定（已通过 patch 修复）。
+
+1. 执行 patch：`npm run youtube:patch-sau`
+2. 检查 `conf.py` 的 `YT_PROXY`（国内建议配置）
+3. **勿立即 re-login**，间隔至少 30 分钟
+4. patch 后 check 会输出具体失败 URL/异常
+5. 日常可直接 `publish`，不必先 check
 
 重新登录（间隔足够后）：
 
