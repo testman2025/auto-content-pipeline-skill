@@ -53,7 +53,167 @@ def _open_file_if_display(path: str) -> None:
         logger.debug("无法自动打开文件: %s", path)
 
 
-# ─── Bridge 连接 ──────────────────────────────────────────────────────────────
+def _read_text_file(path: str) -> str:
+    with open(path, encoding="utf-8") as f:
+        return f.read().strip()
+
+
+def _user_decision_payload(
+    *,
+    title: str,
+    summary: str,
+    verified: bool = False,
+    draft_saved: bool = False,
+    draft_verified: bool = False,
+    retried: bool = False,
+    error: str | None = None,
+    recover: dict | None = None,
+) -> dict:
+    return {
+        "success": False,
+        "verified": verified,
+        "title": title,
+        "draft_saved": draft_saved,
+        "draft_verified": draft_verified,
+        "retried": retried,
+        "keep_browser_open": True,
+        "next_action": "user_decision",
+        "summary": summary,
+        "options": [
+            "手动点右侧草稿再发",
+            "换图后新开一轮发布",
+            "改用 AI 生图（附平台标记风险，需用户确认）",
+            "放弃本次发布",
+        ],
+        "error": error,
+        "recover": recover,
+    }
+
+
+def _validate_publish_images(
+    image_paths: list[str],
+    *,
+    strict_resolution: bool = False,
+) -> list[str]:
+    from xhs.xhs_image_spec import assert_xhs_images_valid, format_validation_summary
+
+    if not image_paths:
+        raise ValueError("没有有效的图片")
+
+    results = assert_xhs_images_valid(
+        image_paths,
+        strict_resolution=strict_resolution,
+    )
+    summary = format_validation_summary(results)
+    warnings = [
+        w
+        for r in summary["images"]
+        for w in r.get("warnings", [])
+    ]
+    if warnings:
+        logger.warning("图片校验警告: %s", "; ".join(warnings))
+    return image_paths
+
+
+def _try_verify_publish(
+    page,
+    title: str,
+    *,
+    wait_minutes: float = 0,
+    skip: bool = False,
+) -> dict | None:
+    if skip:
+        return None
+    from xhs.verify_publish import verify_note_published
+
+    return verify_note_published(page, title, wait_minutes=wait_minutes)
+
+
+def _handle_publish_failure(
+    page,
+    title: str,
+    error: Exception,
+    *,
+    no_recover: bool = False,
+    verify_wait_minutes: float = 3.0,
+    skip_verify: bool = False,
+) -> None:
+    """发布失败：先验收，未上线再 recover，仍失败则 user_decision。"""
+    verify_result = _try_verify_publish(
+        page,
+        title,
+        wait_minutes=verify_wait_minutes,
+        skip=skip_verify,
+    )
+    if verify_result and verify_result.get("published"):
+        _output({
+            "success": True,
+            "verified": True,
+            "title": title,
+            "verify": verify_result,
+            "status": "验收通过：笔记已上线（CLI 曾报错但平台侧已发布）",
+            "message": "禁止同标题重复发布",
+        })
+        return
+
+    if no_recover:
+        _output(_user_decision_payload(
+            title=title,
+            summary=f"发布失败且未执行恢复：{error}",
+            verified=False,
+            error=str(error),
+        ), exit_code=2)
+
+    from xhs.publish import recover_after_publish_failure
+
+    recover = recover_after_publish_failure(
+        page,
+        title,
+        title_hint=title,
+        retry_publish=True,
+    )
+
+    if recover.get("retry_success"):
+        post_verify = _try_verify_publish(
+            page,
+            title,
+            wait_minutes=0,
+            skip=skip_verify,
+        )
+        if post_verify and post_verify.get("published"):
+            _output({
+                "success": True,
+                "verified": True,
+                "title": title,
+                "recover": recover,
+                "verify": post_verify,
+                "status": "草稿恢复后重试发布成功",
+            })
+            return
+        _output({
+            "success": True,
+            "verified": False,
+            "title": title,
+            "recover": recover,
+            "status": "草稿恢复后重试完成，建议运行 verify-publish 确认",
+        })
+        return
+
+    _output(_user_decision_payload(
+        title=title,
+        summary=(
+            "验收未通过；已尝试暂存草稿并重试 1 次仍失败；"
+            "浏览器保持打开发布页，请用户决定后续"
+        ),
+        verified=False,
+        draft_saved=bool(recover.get("draft_saved")),
+        draft_verified=bool(recover.get("draft_verified")),
+        retried=bool(recover.get("retried")),
+        error=str(error),
+        recover=recover,
+    ), exit_code=2)
+
+
 
 
 class _DummyBrowser:
@@ -523,14 +683,17 @@ def cmd_publish(args: argparse.Namespace) -> None:
     from xhs.publish import publish_image_content
     from xhs.types import PublishImageContent
 
-    with open(args.title_file, encoding="utf-8") as f:
-        title = f.read().strip()
-    with open(args.content_file, encoding="utf-8") as f:
-        content = f.read().strip()
+    title = _read_text_file(args.title_file)
+    content = _read_text_file(args.content_file)
 
-    image_paths = process_images(args.images) if args.images else []
-    if not image_paths:
-        _output({"success": False, "error": "没有有效的图片"}, exit_code=2)
+    image_paths = process_images(args.images, for_xhs_publish=True) if args.images else []
+    try:
+        image_paths = _validate_publish_images(
+            image_paths,
+            strict_resolution=args.strict_images,
+        )
+    except ValueError as e:
+        _output({"success": False, "error": str(e)}, exit_code=2)
 
     browser, page = _connect(args)
     try:
@@ -546,7 +709,33 @@ def cmd_publish(args: argparse.Namespace) -> None:
                 visibility=args.visibility or "",
             ),
         )
-        _output({"success": True, "title": title, "images": len(image_paths), "status": "发布完成"})
+        verify_result = None
+        if args.verify:
+            verify_result = _try_verify_publish(
+                page,
+                title,
+                wait_minutes=args.verify_wait_minutes,
+            )
+        result: dict = {
+            "success": True,
+            "title": title,
+            "images": len(image_paths),
+            "status": "发布完成",
+        }
+        if verify_result is not None:
+            result["verify"] = verify_result
+            if not verify_result.get("published"):
+                result["warning"] = "CLI 发布完成但验收未在平台上找到笔记，请稍后运行 verify-publish"
+        _output(result)
+    except Exception as e:
+        _handle_publish_failure(
+            page,
+            title,
+            e,
+            no_recover=args.no_recover,
+            verify_wait_minutes=args.verify_wait_minutes,
+            skip_verify=args.skip_verify,
+        )
     finally:
         browser.close()
 
@@ -557,14 +746,17 @@ def cmd_fill_publish(args: argparse.Namespace) -> None:
     from xhs.publish import fill_publish_form
     from xhs.types import PublishImageContent
 
-    with open(args.title_file, encoding="utf-8") as f:
-        title = f.read().strip()
-    with open(args.content_file, encoding="utf-8") as f:
-        content = f.read().strip()
+    title = _read_text_file(args.title_file)
+    content = _read_text_file(args.content_file)
 
-    image_paths = process_images(args.images) if args.images else []
-    if not image_paths:
-        _output({"success": False, "error": "没有有效的图片"}, exit_code=2)
+    image_paths = process_images(args.images, for_xhs_publish=True) if args.images else []
+    try:
+        image_paths = _validate_publish_images(
+            image_paths,
+            strict_resolution=args.strict_images,
+        )
+    except ValueError as e:
+        _output({"success": False, "error": str(e)}, exit_code=2)
 
     browser, page = _connect(args)
     try:
@@ -580,7 +772,21 @@ def cmd_fill_publish(args: argparse.Namespace) -> None:
                 visibility=args.visibility or "",
             ),
         )
-        _output({"success": True, "title": title, "images": len(image_paths), "status": "表单已填写，等待确认发布"})
+        _output({
+            "success": True,
+            "title": title,
+            "images": len(image_paths),
+            "status": "表单已填写，等待确认发布",
+        })
+    except Exception as e:
+        _handle_publish_failure(
+            page,
+            title,
+            e,
+            no_recover=True,
+            verify_wait_minutes=0,
+            skip_verify=True,
+        )
     finally:
         browser.close()
 
@@ -617,22 +823,164 @@ def cmd_click_publish(args: argparse.Namespace) -> None:
     """点击发布按钮（在用户确认后调用）。"""
     from xhs.publish import click_publish_button
 
+    title = _read_text_file(args.title_file) if args.title_file else ""
+
     browser, page = _connect_existing(args)
     try:
         click_publish_button(page)
-        _output({"success": True, "status": "发布完成"})
+        verify_result = None
+        if args.verify and title:
+            verify_result = _try_verify_publish(
+                page,
+                title,
+                wait_minutes=args.verify_wait_minutes,
+            )
+        result: dict = {"success": True, "status": "发布完成"}
+        if verify_result is not None:
+            result["verify"] = verify_result
+        _output(result)
+    except Exception as e:
+        if title:
+            _handle_publish_failure(
+                page,
+                title,
+                e,
+                no_recover=args.no_recover,
+                verify_wait_minutes=args.verify_wait_minutes,
+                skip_verify=args.skip_verify,
+            )
+        else:
+            _output({"success": False, "error": str(e)}, exit_code=2)
     finally:
         browser.close()
 
 
 def cmd_save_draft(args: argparse.Namespace) -> None:
     """保存为草稿。"""
-    from xhs.publish import save_as_draft
+    from xhs.publish import save_as_draft, verify_draft_in_sidebar
+
+    title_hint = args.title_hint or ""
+    if args.title_file:
+        title_hint = _read_text_file(args.title_file)
 
     browser, page = _connect_existing(args)
     try:
-        save_as_draft(page)
-        _output({"success": True, "status": "内容已保存到草稿箱"})
+        saved = save_as_draft(page)
+        verified = verify_draft_in_sidebar(page, title_hint or None)
+        _output({
+            "success": saved,
+            "draft_saved": saved,
+            "draft_verified": verified,
+            "title_hint": title_hint or None,
+            "status": "内容已暂存离开" if saved else "暂存失败",
+            "keep_browser_open": True,
+        })
+    finally:
+        browser.close()
+
+
+def cmd_verify_publish(args: argparse.Namespace) -> None:
+    """验收笔记是否已在创作中心上线。"""
+    title = _read_text_file(args.title_file)
+
+    browser, page = _connect(args)
+    try:
+        result = _try_verify_publish(
+            page,
+            title,
+            wait_minutes=args.wait_minutes,
+        )
+        if result is None:
+            _output({"success": False, "error": "验收未执行"}, exit_code=2)
+            return
+        _output({
+            "success": bool(result.get("published")),
+            "verified": bool(result.get("published")),
+            "verify": result,
+        }, exit_code=0 if result.get("published") else 2)
+    finally:
+        browser.close()
+
+
+def cmd_recover_publish(args: argparse.Namespace) -> None:
+    """发布失败后手动触发草稿恢复流程。"""
+    from xhs.publish import recover_after_publish_failure
+
+    title = _read_text_file(args.title_file)
+    title_hint = args.title_hint or title
+
+    browser, page = _connect_existing(args)
+    try:
+        recover = recover_after_publish_failure(
+            page,
+            title,
+            title_hint=title_hint,
+            retry_publish=not args.no_retry,
+        )
+        if recover.get("retry_success"):
+            verify_result = _try_verify_publish(
+                page,
+                title,
+                wait_minutes=args.verify_wait_minutes if args.verify else 0,
+                skip=not args.verify,
+            )
+            _output({
+                "success": True,
+                "recover": recover,
+                "verify": verify_result,
+                "status": "草稿恢复并重试发布完成",
+            })
+            return
+
+        _output(_user_decision_payload(
+            title=title,
+            summary="草稿恢复流程完成但仍未确认发布成功，请用户决定后续",
+            draft_saved=bool(recover.get("draft_saved")),
+            draft_verified=bool(recover.get("draft_verified")),
+            retried=bool(recover.get("retried")),
+            recover=recover,
+        ), exit_code=2)
+    finally:
+        browser.close()
+
+
+def cmd_verify_draft(args: argparse.Namespace) -> None:
+    """验证发布页右侧草稿小框。"""
+    from xhs.publish import verify_draft_in_sidebar
+
+    title_hint = args.title_hint or None
+    if args.title_file:
+        title_hint = _read_text_file(args.title_file)
+
+    browser, page = _connect_existing(args)
+    try:
+        verified = verify_draft_in_sidebar(page, title_hint)
+        _output({
+            "success": verified,
+            "draft_verified": verified,
+            "title_hint": title_hint,
+        }, exit_code=0 if verified else 2)
+    finally:
+        browser.close()
+
+
+def cmd_open_draft(args: argparse.Namespace) -> None:
+    """从发布页右侧草稿框打开草稿继续编辑。"""
+    from xhs.publish import open_draft_from_sidebar
+
+    title_hint = args.title_hint or None
+    if args.title_file:
+        title_hint = _read_text_file(args.title_file)
+
+    browser, page = _connect_existing(args)
+    try:
+        opened = open_draft_from_sidebar(page, title_hint)
+        _output({
+            "success": opened,
+            "draft_opened": opened,
+            "title_hint": title_hint,
+            "keep_browser_open": True,
+        }, exit_code=0 if opened else 2)
     finally:
         browser.close()
 
@@ -950,6 +1298,11 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_argument("--schedule-at")
     sub.add_argument("--original", action="store_true")
     sub.add_argument("--visibility")
+    sub.add_argument("--verify", action="store_true", help="发布后验收（首页/笔记管理）")
+    sub.add_argument("--verify-wait-minutes", type=float, default=3.0)
+    sub.add_argument("--skip-verify", action="store_true", help="失败时不做验收（调试用）")
+    sub.add_argument("--no-recover", action="store_true", help="失败时不走草稿恢复")
+    sub.add_argument("--strict-images", action="store_true", help="分辨率不合规也拒绝")
     sub.set_defaults(func=cmd_publish)
 
     # publish-video
@@ -971,6 +1324,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_argument("--schedule-at")
     sub.add_argument("--original", action="store_true")
     sub.add_argument("--visibility")
+    sub.add_argument("--strict-images", action="store_true")
     sub.set_defaults(func=cmd_fill_publish)
 
     # fill-publish-video
@@ -985,11 +1339,45 @@ def build_parser() -> argparse.ArgumentParser:
 
     # click-publish
     sub = subparsers.add_parser("click-publish", help="点击发布按钮")
+    sub.add_argument("--title-file", help="用于失败验收与恢复的标题文件")
+    sub.add_argument("--verify", action="store_true")
+    sub.add_argument("--verify-wait-minutes", type=float, default=3.0)
+    sub.add_argument("--skip-verify", action="store_true")
+    sub.add_argument("--no-recover", action="store_true")
     sub.set_defaults(func=cmd_click_publish)
 
     # save-draft
-    sub = subparsers.add_parser("save-draft", help="保存为草稿")
+    sub = subparsers.add_parser("save-draft", help="保存为草稿（暂存离开）")
+    sub.add_argument("--title-file", help="用于验证右侧草稿标题")
+    sub.add_argument("--title-hint", help="草稿标题片段")
     sub.set_defaults(func=cmd_save_draft)
+
+    # verify-publish
+    sub = subparsers.add_parser("verify-publish", help="验收笔记是否已上线")
+    sub.add_argument("--title-file", required=True)
+    sub.add_argument("--wait-minutes", type=float, default=3.0)
+    sub.set_defaults(func=cmd_verify_publish)
+
+    # recover-publish
+    sub = subparsers.add_parser("recover-publish", help="失败后草稿恢复并重试发布")
+    sub.add_argument("--title-file", required=True)
+    sub.add_argument("--title-hint", help="右侧草稿标题片段")
+    sub.add_argument("--no-retry", action="store_true", help="只暂存草稿，不重试发布")
+    sub.add_argument("--verify", action="store_true")
+    sub.add_argument("--verify-wait-minutes", type=float, default=0)
+    sub.set_defaults(func=cmd_recover_publish)
+
+    # verify-draft
+    sub = subparsers.add_parser("verify-draft", help="验证发布页右侧草稿小框")
+    sub.add_argument("--title-file")
+    sub.add_argument("--title-hint")
+    sub.set_defaults(func=cmd_verify_draft)
+
+    # open-draft
+    sub = subparsers.add_parser("open-draft", help="从右侧草稿框打开草稿")
+    sub.add_argument("--title-file")
+    sub.add_argument("--title-hint")
+    sub.set_defaults(func=cmd_open_draft)
 
     # long-article
     sub = subparsers.add_parser("long-article", help="长文模式：填写 + 一键排版")

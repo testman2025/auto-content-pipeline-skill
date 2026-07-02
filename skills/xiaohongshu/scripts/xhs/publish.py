@@ -21,6 +21,8 @@ from .selectors import (
     CONTENT_LENGTH_ERROR,
     CREATOR_TAB,
     DATETIME_INPUT,
+    DRAFT_SIDEBAR_ITEM,
+    DRAFT_SIDEBAR_LIST,
     FILE_INPUT,
     IMAGE_PREVIEW,
     ORIGINAL_SWITCH,
@@ -302,8 +304,12 @@ def click_publish_button(page: Page) -> None:
     raise PublishError(f"发布失败：code={code} msg={msg!r}")
 
 
-def save_as_draft(page: Page) -> None:
-    """点击「暂存离开」按钮保存草稿。"""
+def save_as_draft(page: Page) -> bool:
+    """点击「暂存离开」按钮保存草稿。
+
+    Returns:
+        True 若成功点击。
+    """
     clicked = page.evaluate(
         """
         (() => {
@@ -321,10 +327,141 @@ def save_as_draft(page: Page) -> None:
     if clicked:
         time.sleep(2)
         logger.info("已点击「暂存离开」，内容已保存到草稿箱")
-    else:
-        logger.warning("未找到「暂存离开」按钮")
-        raise PublishError("未找到「暂存离开」按钮")
+        return True
 
+    logger.warning("未找到「暂存离开」按钮")
+    raise PublishError("未找到「暂存离开」按钮")
+
+
+def reset_publish_page(page: Page) -> None:
+    """重新打开发布页，用于全新发布前清理状态。"""
+    _navigate_to_publish_page(page)
+
+
+def verify_draft_in_sidebar(page: Page, title_hint: str | None = None) -> bool:
+    """检查发布页右侧草稿小框是否出现草稿条目。"""
+    count = page.evaluate(
+        f"""
+        (() => {{
+            const selectors = [
+                {json.dumps(DRAFT_SIDEBAR_ITEM)},
+                'div[class*="draft"] div[class*="item"]',
+                'div[class*="draft-card"]',
+            ];
+            for (const sel of selectors) {{
+                const items = document.querySelectorAll(sel);
+                if (items.length > 0) return items.length;
+            }}
+            const hint = {json.dumps(title_hint or "")};
+            if (!hint) return 0;
+            const all = document.querySelectorAll('div, span, p');
+            for (const el of all) {{
+                const t = (el.textContent || '').trim();
+                if (t.includes(hint) && t.length < 80) return 1;
+            }}
+            return 0;
+        }})()
+        """
+    )
+    found = int(count or 0) > 0
+    logger.info("右侧草稿验证: found=%s count=%s hint=%r", found, count, title_hint)
+    return found
+
+
+def open_draft_from_sidebar(page: Page, title_hint: str | None = None) -> bool:
+    """从发布页右侧草稿框点击继续编辑。"""
+    opened = page.evaluate(
+        f"""
+        (() => {{
+            const hint = {json.dumps(title_hint or "")};
+            const tryClick = (el) => {{
+                if (!el) return false;
+                el.click();
+                return true;
+            }};
+
+            const selectors = [
+                {json.dumps(DRAFT_SIDEBAR_ITEM)},
+                'div[class*="draft"] div[class*="item"]',
+                'div[class*="draft-card"]',
+            ];
+            for (const sel of selectors) {{
+                const items = document.querySelectorAll(sel);
+                for (const item of items) {{
+                    const text = (item.textContent || '').trim();
+                    if (!hint || text.includes(hint)) {{
+                        return tryClick(item) ? 'clicked' : 'failed';
+                    }}
+                }}
+            }}
+
+            if (hint) {{
+                const all = document.querySelectorAll('div, span, p, button');
+                for (const el of all) {{
+                    const t = (el.textContent || '').trim();
+                    if (t.includes(hint) && t.length < 80) {{
+                        const clickable = el.closest('div[class*="draft"]') || el;
+                        return tryClick(clickable) ? 'clicked' : 'failed';
+                    }}
+                }}
+            }}
+            return 'not_found';
+        }})()
+        """
+    )
+    if opened == "clicked":
+        time.sleep(2)
+        logger.info("已从右侧草稿框打开草稿")
+        return True
+    logger.warning("未找到可点击的右侧草稿: %s", opened)
+    return False
+
+
+def recover_after_publish_failure(
+    page: Page,
+    title: str,
+    *,
+    title_hint: str | None = None,
+    retry_publish: bool = False,
+) -> dict:
+    """发布失败后恢复：暂存草稿 → 验证右侧草稿 → 可选打开草稿并重试发布。
+
+    Returns:
+        状态 dict，供 CLI 输出 JSON。
+    """
+    hint = title_hint or title
+    state: dict = {
+        "draft_saved": False,
+        "draft_verified": False,
+        "draft_opened": False,
+        "retried": False,
+        "retry_success": False,
+        "title": title,
+    }
+
+    try:
+        state["draft_saved"] = save_as_draft(page)
+    except PublishError as e:
+        state["error"] = str(e)
+        return state
+
+    time.sleep(1)
+    state["draft_verified"] = verify_draft_in_sidebar(page, hint)
+
+    if state["draft_verified"]:
+        state["draft_opened"] = open_draft_from_sidebar(page, hint)
+
+    if retry_publish and state.get("draft_opened"):
+        try:
+            click_publish_button(page)
+            state["retried"] = True
+            state["retry_success"] = True
+        except Exception as e:
+            state["retried"] = True
+            state["retry_success"] = False
+            state["retry_error"] = str(e)
+
+    return state
 
 # ========== 页面导航 ==========
 

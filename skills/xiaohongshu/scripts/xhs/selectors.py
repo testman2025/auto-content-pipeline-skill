@@ -74,6 +74,15 @@ TAG_FIRST_ITEM = ".item"
 # 弹窗
 POPOVER = "div.d-popover"
 
+# ========== 发布页右侧草稿框 ==========
+# 草稿在发布页右侧小框，须进入「上传图文」流程才可见
+DRAFT_SIDEBAR_LIST = "div.draft-container, div[class*='draft'], aside[class*='draft']"
+DRAFT_SIDEBAR_ITEM = (
+    "div.draft-container div[class*='draft-item'], "
+    "div[class*='draft'] div[class*='item'], "
+    "div[class*='draft-card']"
+)
+
 # ========== 写长文模式 ==========
 # 注意: 长文模式的按钮（写长文、新的创作、一键排版、下一步）通过文本匹配定位
 LONG_ARTICLE_TAB_TEXT = "写长文"

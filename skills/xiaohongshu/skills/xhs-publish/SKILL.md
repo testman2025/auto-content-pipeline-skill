@@ -38,6 +38,11 @@ metadata:
 | `publish` | 图文一步发布 |
 | `publish-video` | 视频一步发布 |
 | `click-publish` | 点击发布按钮 |
+| `verify-publish` | 验收笔记是否已上线（首页/笔记管理） |
+| `recover-publish` | 失败后草稿恢复并重试 |
+| `verify-draft` | 验证发布页右侧草稿小框 |
+| `open-draft` | 从右侧草稿继续编辑 |
+| `save-draft` | 暂存离开（保存草稿） |
 | `long-article` | 填写长文内容并触发排版 |
 | `select-template` | 选择长文排版模板 |
 | `next-step` | 进入长文发布页并填写描述 |
@@ -85,7 +90,7 @@ metadata:
 - **优先取 `data-src`**：若 `img` 标签同时有 `src` 和 `data-src`，以 `data-src` 为准（这是真实图片）。
 - **跳过占位图**：`src` 路径含 `/shims/`、`/placeholder`、`/theme/`、`/themes/`、`16x9.png`、`1x1.png` 等的图片为占位符，直接忽略。
 - **只取内容图**：只选正文主体区域的截图/配图，跳过网站 logo、图标、视频封面缩略图。
-- **格式验证**：图片 URL 应以 `.jpg`、`.jpeg`、`.png`、`.webp`、`.gif` 结尾，否则跳过。
+- **格式验证**：图片 URL 应以 `.jpg`、`.jpeg`、`.png`、`.webp` 结尾（官方格式）；**不支持** `.gif`、`.bmp`、Live 图。
 - **不要重试猜测**：按上述规则提取图片后直接使用，如果图片确实为空，告知用户手动提供，不要反复尝试不同的图片 URL。
 
 ### Step A.2: 内容检查
@@ -156,10 +161,10 @@ python scripts/cli.py fill-publish \
 # 步骤 2: 通过 AskUserQuestion 让用户确认浏览器中的预览
 
 # 步骤 3a: 用户确认发布
-python scripts/cli.py click-publish
+python scripts/cli.py click-publish --title-file /tmp/xhs_title.txt --verify
 
 # 步骤 3b: 用户取消 → 必须先保存草稿！
-python scripts/cli.py save-draft
+python scripts/cli.py save-draft --title-file /tmp/xhs_title.txt
 ```
 
 > ⚠️ **用户取消时必须调用 `save-draft`**，不得直接关闭 tab 或结束流程。
@@ -179,10 +184,10 @@ python scripts/cli.py fill-publish-video \
 # 步骤 2: 用户确认
 
 # 步骤 3a: 用户确认发布
-python scripts/cli.py click-publish
+python scripts/cli.py click-publish --title-file /tmp/xhs_title.txt --verify
 
 # 步骤 3b: 用户取消 → 必须先保存草稿！
-python scripts/cli.py save-draft
+python scripts/cli.py save-draft --title-file /tmp/xhs_title.txt
 ```
 
 > ⚠️ **用户取消时必须调用 `save-draft`**，不得直接关闭 tab 或结束流程。
@@ -264,7 +269,7 @@ python scripts/cli.py next-step \
 
 ```bash
 # 用户在浏览器中确认预览后
-python scripts/cli.py click-publish
+python scripts/cli.py click-publish --title-file /tmp/xhs_title.txt --verify
 ```
 
 ## 处理输出
@@ -286,9 +291,22 @@ python scripts/cli.py click-publish
 | `--original` | 声明原创 |
 | `--visibility` | 可见范围 |
 
+## 发布验收与失败恢复
+
+详见 `skills/xiaohongshu/references/xhs-cron-runbook.md`。
+
+1. **CLI 报错或超时后**：先 `verify-publish --title-file ... --wait-minutes 3`
+2. 验收通过 → 判定成功，**禁止**同标题重发
+3. 验收失败 → `save-draft` → `verify-draft` → `open-draft` → `click-publish`（最多 1 次）
+4. 仍失败 → CLI 输出 `next_action: user_decision`，**不关浏览器**，汇报用户决策
+
+**右侧草稿 UI**：草稿在发布页**右侧小框**，须先进入「上传图文」流程才可见（不是独立草稿箱全页）。
+
 ## 失败处理
 
 - **登录失败**：提示用户重新扫码登录并重试（参考 xhs-auth）。
+- **图片格式/大小不合规**：CLI 拒绝 bmp/gif/svg 及 >32MB；使用 pipeline:xhs PNG 或 tokenware 官方输出。
+- **CLI 超时不等于失败**：先 verify-publish，禁止盲目换图连发。
 - **图片下载失败**：提示更换图片 URL 或改用本地图片。
 - **视频处理超时**：视频上传后需等待处理（最长 10 分钟），超时后提示重试。
 - **标题过长**：自动缩短标题，保持语义。

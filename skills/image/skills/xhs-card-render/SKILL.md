@@ -2,7 +2,7 @@
 name: xhs-card-render
 description: |
   小红书图文卡片配图（非 AI）。配图 MD + YAML frontmatter → `npm run pipeline:xhs` → PNG 卡片。
-  Step 4c 小红书配图时使用。禁止 tokenware / gpt-image-2。
+  Step 4c 小红书配图时使用。**必须先** pipeline:xhs；失败后再考虑 tokenware 降级（非并行二选一）。
 version: 1.0.0
 metadata:
   hermes:
@@ -134,4 +134,9 @@ npm run tool:install   # 含 Auto-Redbook 与 Python 渲染环境，Agent 勿逐
 
 ## 配图失败
 
-汇报错误，选项：A) `npm run tool:install` 后重试 `pipeline:xhs`；B) 跳过配图先发文字。不要改用 AI 生图。
+**禁止**起手 tokenware 或并行「xhs-card-render 或 tokenware」。按 `skills/xiaohongshu/references/xhs-cron-runbook.md`：
+
+- **交互**：A) `tool:install` 后重试 pipeline:xhs；B) 用户确认后 tokenware（附 AI 标记风险）；C) 跳过配图；D) 放弃
+- **Cron**：A) 重试 pipeline:xhs；B) 自动 tokenware；C) 跳过并记录
+
+不要 BMP/ffmpeg/execute_code 自造图。

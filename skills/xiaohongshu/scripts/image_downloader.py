@@ -17,8 +17,12 @@ _USER_AGENT = (
     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 )
 
-# 已知图片扩展名
+# 已知图片扩展名（通用下载）
 _IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg"}
+
+# 小红书发布官方格式白名单
+XHS_ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
+XHS_BLOCKED_EXTENSIONS = {".gif", ".bmp", ".svg", ".heic", ".heif", ".tiff", ".tif"}
 
 
 def is_image_url(path: str) -> bool:
@@ -105,8 +109,36 @@ class ImageDownloader:
         return None
 
 
-def process_images(images: list[str], save_dir: str | None = None) -> list[str]:
-    """处理图片列表（URL 下载，本地路径直接返回）。"""
+def _validate_local_image(path: str, *, for_xhs_publish: bool) -> bool:
+    """校验本地图片扩展名。"""
+    ext = os.path.splitext(path)[1].lower()
+    if for_xhs_publish:
+        if ext in XHS_BLOCKED_EXTENSIONS:
+            logger.error(
+                "小红书不支持格式 %s: %s（仅 png/jpg/jpeg/webp）", ext, path
+            )
+            return False
+        if ext not in XHS_ALLOWED_EXTENSIONS:
+            logger.error(
+                "小红书不支持格式 %s: %s（仅 png/jpg/jpeg/webp）", ext or "(无)", path
+            )
+            return False
+    return True
+
+
+def process_images(
+    images: list[str],
+    save_dir: str | None = None,
+    *,
+    for_xhs_publish: bool = False,
+) -> list[str]:
+    """处理图片列表（URL 下载，本地路径直接返回）。
+
+    Args:
+        images: URL 或本地路径列表。
+        save_dir: 下载目录。
+        for_xhs_publish: True 时仅接受小红书官方四类格式。
+    """
     if not save_dir:
         save_dir = os.path.join(os.path.expanduser("~"), ".xhs", "images")
 
@@ -116,11 +148,13 @@ def process_images(images: list[str], save_dir: str | None = None) -> list[str]:
     for img in images:
         if is_image_url(img):
             path = downloader.download_image(img)
-            result.append(path)
+            if _validate_local_image(path, for_xhs_publish=for_xhs_publish):
+                result.append(path)
         else:
-            # 本地路径
             if os.path.exists(img):
-                result.append(os.path.abspath(img))
+                abs_path = os.path.abspath(img)
+                if _validate_local_image(abs_path, for_xhs_publish=for_xhs_publish):
+                    result.append(abs_path)
             else:
                 logger.warning("文件不存在: %s", img)
 

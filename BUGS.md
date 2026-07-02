@@ -1,6 +1,27 @@
 # Bug 修复记录
 
-## 2026-07-02 — YouTube 发布反复开浏览器 + 操作过快（风控风险）
+## 2026-07-02 — 小红书 Cron 配图走错路 + CLI 误判失败连发风控
+
+**现象**：定时任务未走 `pipeline:xhs` 模版卡片，Agent 起手 tokenware 失败后自造 BMP+ffmpeg 渐变图；13:12 上传超时后 13:18 换图再发，触发小红书风控踢登录。
+
+**原因**：
+- Cron prompt 写「xhs-card-render 或 tokenware」并行二选一，Agent 先试 tokenware
+- `publish.py` 上传超时直接抛错，未去创作中心验收是否已上线
+- 无官方图片格式校验（bmp/gif 被放行）
+- 无右侧草稿恢复与 `user_decision` 停止策略
+
+**修复**：
+- 新增 `skills/xiaohongshu/references/xhs-cron-runbook.md`：先 pipeline:xhs，失败再 tokenware（交互问用户/Cron 自动）；发布验收 SOP
+- 新增 `xhs_image_spec.py`：官方格式 png/jpg/jpeg/webp、≤32MB、分辨率 warning
+- 新增 `verify_publish.py` + CLI `verify-publish`：首页最新笔记 / 笔记管理已发布
+- `publish.py`：`recover_after_publish_failure`、`verify_draft_in_sidebar`、`open_draft_from_sidebar`
+- `cli.py`：发布前校验图片；失败先验收再 recover；`recover-publish` / `verify-draft` / `open-draft`
+- 更新 SKILL.md、xhs-publish、xhs-card-render、tokenware-image 文档
+
+**验证**：`python cli.py verify-publish --title-file title.txt`；bmp 图片被 publish 拒绝；失败输出含 `next_action: user_decision`
+
+---
+
 
 **现象**：Agent/Hermes 执行 YouTube 发布时反复打开又关闭 Chrome，点击极快；封面上传未等完成就点发布；像机器人操作，有封号风险。
 
