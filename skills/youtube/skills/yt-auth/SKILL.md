@@ -2,7 +2,7 @@
 name: yt-auth
 description: |
   YouTube sau 认证技能。检查/引导 social-auto-upload 登录。
-  当用户要求登录 YouTube、检查 Studio 登录时触发。
+  遇 check invalid 或 sau 报错时先读 references/sau-runbook.md。
 version: 2.0.0
 ---
 

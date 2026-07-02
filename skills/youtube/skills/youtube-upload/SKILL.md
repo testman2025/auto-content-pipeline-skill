@@ -2,7 +2,7 @@
 name: youtube-upload
 description: |
   通过 social-auto-upload（sau）完成 YouTube 登录、cookie 校验、视频上传。
-  本项目 YouTube 唯一发布路径，无 Playwright 回退。
+  本项目 YouTube 唯一发布路径。遇 sau 报错或 check invalid 时先读 references/sau-runbook.md。
 version: 2.0.0
 ---
 
@@ -40,6 +40,7 @@ node skills/youtube/scripts/cli.mjs publish --video "D:/..." --title "标题"
 
 ## 参考文档
 
-- `references/runtime-requirements.md`
-- `references/cli-contract.md`
-- `references/troubleshooting.md`
+- **问题排查 Runbook（Hermes 首选）**：`references/sau-runbook.md`
+- 运行前提：`references/runtime-requirements.md`
+- CLI 契约：`references/cli-contract.md`
+- 故障索引：`references/troubleshooting.md`

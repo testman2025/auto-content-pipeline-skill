@@ -546,7 +546,7 @@ uv pip install -e .
 patchright install chromium
 ```
 
-**YouTube** 仅 `sau youtube`（social-auto-upload）。登录态唯一路径：`tool/social-auto-upload/cookies/`。无 Playwright 回退；Agent 禁止连跑 login/check。
+**YouTube** 仅 `sau youtube`（social-auto-upload）。登录态唯一路径：`tool/social-auto-upload/cookies/`。无 Playwright 回退；Agent 禁止连跑 login/check。遇 sau 报错 / check invalid → `skills/youtube/references/sau-runbook.md`。
 
 **LinkedIn** 基于 **官方 OAuth + Posts API**（`w_member_social`）。打开授权页后须用户手动登录授权，终端确认后再存令牌/发帖。公司主页预留见 `skills/linkedin/references/company-page.md`。
 

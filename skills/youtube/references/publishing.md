@@ -50,6 +50,12 @@ tool/social-auto-upload/
 └── cookies/youtube_default.json   ← 唯一登录态
 ```
 
+## 故障排查
+
+Hermes / Agent 遇到 sau 安装、check invalid、cookie 恢复等问题，**按顺序执行**：
+
+→ [references/sau-runbook.md](references/sau-runbook.md)
+
 ## 不要用
 
 - `pva youtube login/upload` — 已废弃，与 sau cookie 不互通
